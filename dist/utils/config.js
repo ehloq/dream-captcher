@@ -3,7 +3,7 @@ export default {
         URL: 'http://localhost:3000'
     },
     DB: {
-        URI: 'mongodb://0.0.0.0:27017/ehloq2k24',
+        URI: 'mongodb+srv://eduardoxx:mdemierda023@catcher.kghhkvp.mongodb.net/?retryWrites=true&w=majority&appName=Catcher',
         USER: '',
         PASSWORD: ''
     }
