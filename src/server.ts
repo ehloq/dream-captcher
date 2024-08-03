@@ -12,6 +12,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const FULL_DOM_MODE = true;
+
 // Initializations
 const app: Express = express();
 
@@ -125,8 +127,7 @@ const interceptorMiddleware = (req: CustomRequest, res: express.Response, next: 
 
     if (req.method === 'GET') {
         if (extractData.checkWord){
-            console.log("CHECK ROUTEEE");
-            req.url = '/ehloq-check';
+            req.url = FULL_DOM_MODE ? '/ehloq-check-dom' : '/ehloq-check';
         }else{
             console.log("LOAD ROUTESS");
             req.url = '/ehloq-load';

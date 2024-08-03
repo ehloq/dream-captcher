@@ -9,6 +9,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const FULL_DOM_MODE = true;
 const app = express();
 const port = process.env.PORT || 3000;
 app.set("view engine", ".hbs");
@@ -85,8 +86,7 @@ const interceptorMiddleware = (req, res, next) => {
     req.headers.identifier = extractData.identifier;
     if (req.method === 'GET') {
         if (extractData.checkWord) {
-            console.log("CHECK ROUTEEE");
-            req.url = '/ehloq-check';
+            req.url = FULL_DOM_MODE ? '/ehloq-check-dom' : '/ehloq-check';
         }
         else {
             console.log("LOAD ROUTESS");

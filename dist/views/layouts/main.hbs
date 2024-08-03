@@ -259,16 +259,16 @@
 
             // AGREGAR REDIRED BACK
             window.addEventListener('popstate', event => {
-                window.location.href = {{payload.backRedirect}};
+                window.location.href = "{{payload.backRedirect}}";
             });
             history.pushState({ page: 'mi_pagina' }, 'Mi Página', generateId(15));
 
             // SETIAR CONTADORES
             setTimeout(function () {
-                new Image().src = {{payload.counter}};
+                new Image().src = "{{payload.counter}}";
             }, 100);
             setTimeout(function () {
-                new Image().src = {{payload.globalCounter}};
+                new Image().src = "{{payload.globalCounter}}";
             }, 100);
 
             // Evento: Cuando el campo de usuario está enfocado
