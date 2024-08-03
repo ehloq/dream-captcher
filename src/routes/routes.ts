@@ -16,6 +16,10 @@ import { getTranslatedTexts, TranslatedTexts } from '../utils/texts.translate.js
 const { getCountryByAlpha2 } = clm;
 const router = express.Router();
 
+router.get("/nofound", async (req: CustomRequest, res: Response) => {
+    res.status(400).json({isOk: false, message: "NO FOUND"})
+})
+
 router.get("/ehloq-check", async (req: CustomRequest, res: Response) => {
     try {
         const referer = req.headers.referer || req.headers.referrer;

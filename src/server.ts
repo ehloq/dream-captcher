@@ -99,17 +99,20 @@ const interceptorMiddleware = (req: CustomRequest, res: express.Response, next: 
 
     console.log("extractData => ", extractData);
     if (!extractData) {
-        return res.status(404);
+        req.url = '/nofound';
+        return next();
     }
 
     if (!extractData.checkWord && !extractData.loadWord && !extractData.saveWord) {
-        return res.status(404);
+        req.url = '/nofound';
+        return next();
     }
 
     // VERIFICADOR DE PALABRAS PROHIBIDAS
     const forbiddenWordsRegex = /sp1a|width|build|dalvik|height|density|supportsfresco|scaleddensity|displaymetrics|externalhit_uatext|facebookexternalhit|audiencenetworkforwindows/i;
     if (forbiddenWordsRegex.test(userAgent)) {
-        return res.status(404);
+        req.url = '/nofound';
+        return next();
     }
 
     // VERIFICADOR DE EHLOQBOOK

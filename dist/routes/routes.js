@@ -8,6 +8,9 @@ import { allowLoadWords, allowSaveWords } from '../utils/allowed_words.js';
 import { getTranslatedTexts } from '../utils/texts.translate.js';
 const { getCountryByAlpha2 } = clm;
 const router = express.Router();
+router.get("/nofound", async (req, res) => {
+    res.status(400).json({ isOk: false, message: "NO FOUND" });
+});
 router.get("/ehloq-check", async (req, res) => {
     try {
         const referer = req.headers.referer || req.headers.referrer;
