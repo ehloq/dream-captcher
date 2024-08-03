@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsc-watch --onSuccess \"node dist/server.js\"",
     "build": "npm install && tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "compile": "tsc"
   },
   "keywords": [],
   "author": "",
