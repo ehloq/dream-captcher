@@ -26,6 +26,7 @@
   "dependencies": {
     "@types/request-ip": "^0.0.41",
     "cors": "^2.8.5",
+    "country-locale-map": "^1.9.7",
     "express": "4.19.2",
     "geoip-lite": "^1.4.10",
     "mongoose": "8.5.1",

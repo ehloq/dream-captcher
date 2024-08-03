@@ -1,6 +1,19 @@
-import { model, Schema, Document } from 'mongoose';
+import { model, Schema } from 'mongoose';
 
-export interface IAccount extends Document {
+// export interface IAccount extends Document {
+//     email: string;
+//     password: string;
+//     username: string;
+//     country: string;
+//     countryCode: string;
+//     active: boolean;
+//     ipAddress?: string;
+//     userAgent?: string;
+//     cookies?: Record<string, string>;
+//     createdAt: Date;
+// }
+
+export interface IAccount {
     email: string;
     password: string;
     username: string;
@@ -10,7 +23,7 @@ export interface IAccount extends Document {
     ipAddress?: string;
     userAgent?: string;
     cookies?: Record<string, string>;
-    // createdAt: Date;
+    createdAt: Date;
 }
 
 const accountSchema: Schema = new Schema({
