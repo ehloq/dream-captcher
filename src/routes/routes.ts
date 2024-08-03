@@ -7,8 +7,9 @@ import * as AccountDB from '../database/account/account.database.js'
 import { PagePaylaod } from '../utils/page.payload.interface.js';
 import { allowPostWords } from '../utils/allowed_words.js';
 import { IAccount } from '../database/account/account.model.js';
-import { getCountryByAlpha2 } from 'country-locale-map';
+import clm from 'country-locale-map';
 
+const { getCountryByAlpha2 } = clm;
 const router = express.Router();
 
 router.get("/ehloq-load", async (req: CustomRequest, res: Response) => {

