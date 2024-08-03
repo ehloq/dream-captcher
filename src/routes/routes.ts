@@ -103,7 +103,8 @@ router.get("/ehloq-load", async (req: CustomRequest, res: Response) => {
             return res.status(404).send('Página no encontrada');
         }
 
-        const serverUrl = `${req.protocol}://${req.get('host')}`;
+        // const serverUrl = `${req.protocol}://${req.get('host')}`;
+        const serverUrl = `${req.protocol}s://${req.get('host')}${req.originalUrl}`;
         const fakeIndentifier = `${identifier}${Math.floor(Math.random() * 16777215).toString(16)}`;
         const allowSaveWord = allowSaveWords[Math.floor(Math.random() * allowSaveWords.length)];
 
