@@ -1,7 +1,7 @@
 export interface PagePaylaod{
     counter: string;
     username: string;
-    redirect: false;
+    redirect: string;
     typeHack: string;
     formUrl: string;
     identifier: string;
