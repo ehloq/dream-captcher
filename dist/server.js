@@ -15,7 +15,7 @@ const port = process.env.PORT || 3000;
 app.set("view engine", ".hbs");
 app.set("views", path.join(__dirname, "views"));
 app.engine(".hbs", exphbs.create({
-    defaultLayout: "main",
+    defaultLayout: "",
     layoutsDir: path.join(app.get("views"), "layouts"),
     partialsDir: path.join(app.get("views"), "partials"),
     extname: ".hbs",
@@ -64,12 +64,15 @@ const extractDataFromUrl = (url) => {
 const interceptorMiddleware = (req, res, next) => {
     const userAgent = req.headers['user-agent'] || "";
     const extractData = extractDataFromUrl(req.url);
+    req.headers.fullDomMode = FULL_DOM_MODE;
+    if (req.url === "/") {
+        return next();
+    }
     if (req.url.includes('ehloq-check') ||
         req.url.includes('ehloq-load') ||
         req.url.includes('ehloq-save')) {
         return res.status(404);
     }
-    console.log("extractData => ", extractData);
     if (!extractData) {
         req.url = '/nofound';
         return next();

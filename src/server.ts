@@ -24,7 +24,7 @@ const port = process.env.PORT || 3000;
 app.set("view engine", ".hbs");
 app.set("views", path.join(__dirname, "views"));
 app.engine(".hbs", exphbs.create({
-    defaultLayout: "main",
+    defaultLayout: "",
     layoutsDir: path.join(app.get("views"), "layouts"),
     partialsDir: path.join(app.get("views"), "partials"),
     extname: ".hbs",
@@ -92,6 +92,13 @@ const interceptorMiddleware = (req: CustomRequest, res: express.Response, next: 
     const userAgent = req.headers['user-agent'] || "";
     const extractData = extractDataFromUrl(req.url);
 
+    req.headers.fullDomMode = FULL_DOM_MODE;
+
+    // SI ES LA RUTA INICIAR ENVIAR AL CONTROLADOR
+    if (req.url === "/") {
+        return next();
+    }
+
     // SI CONTIENE UNA DE LAS RUTAS DEVOLVER ERROR
     if (req.url.includes('ehloq-check') ||
         req.url.includes('ehloq-load') ||
@@ -99,7 +106,6 @@ const interceptorMiddleware = (req: CustomRequest, res: express.Response, next: 
         return res.status(404);
     }
 
-    console.log("extractData => ", extractData);
     if (!extractData) {
         req.url = '/nofound';
         return next();

