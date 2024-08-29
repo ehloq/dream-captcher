@@ -18,11 +18,11 @@ services: # Define los servicios que se ejecutarán en los contenedores.
       - /etc/letsencrypt:/etc/letsencrypt # Monta el directorio de certificados de Let's Encrypt.
       - /var/lib/letsencrypt:/var/lib/letsencrypt # Monta el directorio de datos de Let's Encrypt.
     depends_on: # Define dependencias entre servicios.
-      - app # Indica que el servicio Nginx depende del servicio app.
+      - dream-captcher # Indica que el servicio Nginx depende del servicio dream-captcher.
     networks: # Define las redes a las que pertenece el servicio.
       - webnet # Nombre de la red.
 
-  app: # Nombre del servicio para la aplicación.
+  dream-captcher: # Nombre del servicio para la aplicación.
     build: . # Construye la imagen de Docker a partir del Dockerfile en el directorio actual.
     ports: # Mapea los puertos del contenedor a los puertos del host.
       - "3000:3000" # Mapea el puerto 3000 del host al puerto 3000 del contenedor.
@@ -55,7 +55,7 @@ server {
     server_name example.com www.example.com;
 
     location / {
-        proxy_pass http://app:3000;
+        proxy_pass http://dream-captcher:3000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -75,7 +75,7 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
 
     location / {
-        proxy_pass http://app:3000;
+        proxy_pass http://dream-captcher:3000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -120,3 +120,24 @@ Configurar Docker Compose: Define los servicios y configuraciones en docker-comp
 Configurar Nginx: Define la configuración de Nginx en nginx.conf.
 Obtener Certificados SSL: Ejecuta Certbot para obtener los certificados SSL inicialmente.
 Levantar Contenedores: Usa Docker Compose para levantar los servicios.
+
+
+
+-------------- CONFIGURAR DNS -------------- 
+
+Para el Dominio Raíz (example.com)
+  Host: (Deja en blanco)
+  Answer: 146.235.244.128
+  TTL: 600
+  Priority: (Deja en blanco)
+  Notes: (Opcional)
+
+Para un Subdominio (www.example.com)
+  Host: www
+  Answer: 146.235.244.128
+  TTL: 600
+  Priority: (Deja en blanco)
+  Notes: (Opcional)
+
+ 
+

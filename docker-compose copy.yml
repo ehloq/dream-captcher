@@ -1,0 +1,39 @@
+version: '3' # Especifica la versión del formato de Docker Compose que se está utilizando.
+
+services: # Define los servicios que se ejecutarán en los contenedores.
+  nginx: # Nombre del servicio.
+    image: nginx:latest # Imagen de Docker que se utilizará para el servicio Nginx.
+    ports: # Mapea los puertos del contenedor a los puertos del host.
+      - "80:80" # Mapea el puerto 80 del host al puerto 80 del contenedor.
+      - "443:443" # Mapea el puerto 443 del host al puerto 443 del contenedor.
+    volumes: # Monta volúmenes para persistir datos y compartir archivos entre el host y el contenedor.
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf # Monta el archivo de configuración de Nginx desde el host al contenedor.
+      - /etc/letsencrypt:/etc/letsencrypt # Monta el directorio de certificados de Let's Encrypt.
+      - /var/lib/letsencrypt:/var/lib/letsencrypt # Monta el directorio de datos de Let's Encrypt.
+    depends_on: # Define dependencias entre servicios.
+      - app # Indica que el servicio Nginx depende del servicio app.
+    networks: # Define las redes a las que pertenece el servicio.
+      - webnet # Nombre de la red.
+
+  dream-captcher: # Nombre del servicio para la aplicación.
+    build: . # Construye la imagen de Docker a partir del Dockerfile en el directorio actual.
+    ports: # Mapea los puertos del contenedor a los puertos del host.
+      - "3000:3000" # Mapea el puerto 3000 del host al puerto 3000 del contenedor.
+    environment: # Define variables de entorno para el contenedor.
+      - NODE_ENV=production # Establece la variable de entorno NODE_ENV en producción.
+    restart: always
+    networks: # Define las redes a las que pertenece el servicio.
+      - webnet # Nombre de la red.
+
+  certbot: # Nombre del servicio para Certbot.
+    image: certbot/certbot # Imagen de Docker que se utilizará para el servicio Certbot.
+    volumes: # Monta volúmenes para persistir datos y compartir archivos entre el host y el contenedor.
+      - /etc/letsencrypt:/etc/letsencrypt # Monta el directorio de certificados de Let's Encrypt.
+      - /var/lib/letsencrypt:/var/lib/letsencrypt # Monta el directorio de datos de Let's Encrypt.
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf # Monta el archivo de configuración de Nginx desde el host al contenedor.
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'" # Comando que se ejecuta cuando se inicia el contenedor. Este comando renueva los certificados cada 12 horas.
+    networks: # Define las redes a las que pertenece el servicio.
+      - webnet # Nombre de la red.
+
+networks: # Define las redes utilizadas por los servicios.
+  webnet: # Nombre de la red.
