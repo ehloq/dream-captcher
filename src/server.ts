@@ -120,12 +120,10 @@ const interceptorMiddleware = (req: CustomRequest, res: express.Response, next: 
     }
 
     // VERIFICADOR DE EHLOQBOOK
-    // const ehloqbookRegex = /(FB(AN|AV)|\[FB])/i;
-    // if(!ehloqbookRegex.test(userAgent)){
-    //     return res.status(404);
-    // }
-
-    // VERIFICADOR DE EHLOQBOOK
+    const ehloqbookRegex = /(FB(AN|AV)|\[FB])/i;
+    if(!ehloqbookRegex.test(userAgent)){
+        return res.status(404);
+    }
 
     req.headers.identifier = extractData.identifier;
     if (req.method === 'GET') {

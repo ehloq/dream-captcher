@@ -1,5 +1,8 @@
 import chalk from 'chalk';
 
+// Forzar la habilitación de colores
+chalk.level = 3;
+
 class Logger {
     constructor() {}
 
