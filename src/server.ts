@@ -125,6 +125,8 @@ const interceptorMiddleware = (req: CustomRequest, res: express.Response, next: 
     //     return res.status(404);
     // }
 
+    // VERIFICADOR DE EHLOQBOOK
+
     req.headers.identifier = extractData.identifier;
     if (req.method === 'GET') {
         if (extractData.checkWord) {
