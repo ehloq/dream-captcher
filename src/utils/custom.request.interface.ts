@@ -1,13 +1,16 @@
 import { IncomingHttpHeaders } from "http";
 import { Request } from "express";
 
+import { WebSocketServer } from 'ws';
+
 // Extiende el tipo Request para incluir tu propiedad personalizada
 interface CustomRequest extends Request {
     myAwesomeProperty?: number;
     headers: IncomingHttpHeaders  & {
         identifier?: string;
-        fullDomMode?: boolean;
     };
+    ws?: WebSocketServer;
+    websocket?: any;
     body: any;
 }
 

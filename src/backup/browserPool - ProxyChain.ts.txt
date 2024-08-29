@@ -1,0 +1,146 @@
+import { chromium, Browser, BrowserContext } from 'playwright';
+import { newInjectedContext } from 'fingerprint-injector';
+import WebSocket from 'ws';
+import { ProxyChain } from 'proxy-chain';
+
+class BrowserPool {
+    private static instance: BrowserPool;
+    private browserPool: Browser[] = [];
+    private userContexts: Map<string, BrowserContext> = new Map();
+    private contextToBrowser: Map<BrowserContext, Browser> = new Map();
+    private maxBrowsers: number = 10;
+    private maxContextsPerBrowser: number = 20;
+
+    private constructor() {
+        this.initializeBrowserPool();
+    }
+
+    // Inicializa el pool de navegadores con el número máximo de navegadores permitidos
+    private async initializeBrowserPool() {
+        for (let i = 0; i < this.maxBrowsers; i++) {
+            const browser = await chromium.launch({ headless: false, proxy: { server: 'http://per-context' } });
+            this.browserPool.push(browser);
+        }
+    }
+
+    // Obtiene la instancia única de BrowserPool (patrón Singleton)
+    public static getInstance(): BrowserPool {
+        if (!BrowserPool.instance) {
+            BrowserPool.instance = new BrowserPool();
+        }
+        return BrowserPool.instance;
+    }
+
+    // Adquiere un navegador que no haya alcanzado su límite de contextos
+    private async acquireBrowser(): Promise<Browser> {
+        for (const browser of this.browserPool) {
+            const contexts = await browser.contexts();
+            if (contexts.length < this.maxContextsPerBrowser) {
+                return browser;
+            }
+        }
+        // Si todos los navegadores están al máximo de capacidad, lanza uno nuevo (si está permitido)
+        if (this.browserPool.length < this.maxBrowsers) {
+            const newBrowser = await chromium.launch({ headless: false, proxy: { server: 'http://per-context' } });
+            this.browserPool.push(newBrowser);
+            return newBrowser;
+        }
+        throw new Error('All browsers are at max capacity');
+    }
+
+    // Obtiene un contexto de navegador para un usuario específico, asignándolo a un navegador disponible
+    public async getBrowserContext(userId: string): Promise<BrowserContext> {
+        if (this.userContexts.has(userId)) {
+            return this.userContexts.get(userId)!;
+        }
+
+        const browser = await this.acquireBrowser();
+        const proxy = this.getProxyForUser(userId);
+
+        // Crear un proxy HTTP a partir del proxy SOCKS5 usando proxy-chain
+        const newProxyUrl = await ProxyChain.anonymizeProxy(`socks5://${proxy.username}:${proxy.password}@${proxy.server}`);
+
+        const context = await newInjectedContext(browser, {
+            fingerprintOptions: {
+                devices: ['mobile'],
+                operatingSystems: ['android', 'ios'],
+            },
+            newContextOptions: {
+                proxy: { server: newProxyUrl },
+                geolocation: {
+                    latitude: Math.random() * (90 - -90) + -90,
+                    longitude: Math.random() * (90 - -180) + -180,
+                },
+                locale: 'es-ES',
+            },
+        });
+
+        this.userContexts.set(userId, context);
+        this.contextToBrowser.set(context, browser);
+        return context;
+    }
+
+    // Libera un contexto de navegador asociado a un usuario específico
+    public async releaseBrowserContext(userId: string): Promise<void> {
+        if (!this.userContexts.has(userId)) {
+            throw new Error(`No context found for user ID: ${userId}`);
+        }
+
+        const context = this.userContexts.get(userId)!;
+        const browser = this.contextToBrowser.get(context)!;
+
+        // Cierra el contexto
+        await context.close();
+        this.userContexts.delete(userId);
+        this.contextToBrowser.delete(context);
+
+        // Cierra navegadores inactivos
+        await this.closeInactiveBrowsers();
+    }
+
+    // Cierra navegadores que no tienen contextos activos
+    private async closeInactiveBrowsers() {
+        for (const browser of this.browserPool) {
+            const contexts = await browser.contexts();
+            if (contexts.length === 0) {
+                await browser.close();
+                this.browserPool = this.browserPool.filter(b => b !== browser);
+            }
+        }
+    }
+
+    // Ejecuta la lógica de Playwright para un usuario específico
+    public async runPlaywright(userId: string, payload: any, ws: WebSocket): Promise<{ success: boolean }> {
+        const context = await this.getBrowserContext(userId);
+
+        const page = await context.newPage();
+
+        // Navega a una URL específica
+        await page.goto('https://ip.smartproxy.com/json');
+
+        // Implementación del método usando el contexto
+        // Ejemplo de uso de WebSocket para enviar mensajes al usuario
+        ws.send(JSON.stringify({ message: 'Automatización iniciada' }));
+
+        // Aquí iría la lógica de automatización
+        // ...
+
+        // Enviar mensaje al usuario cuando la automatización termine
+        ws.send(JSON.stringify({ message: 'Automatización completada' }));
+
+        return { success: true };
+    }
+
+    // Método para obtener el proxy según el usuario
+    private getProxyForUser(userId: string): { server: string, username: string, password: string } {
+        // Implementación para obtener el proxy según el usuario
+        // Ejemplo: retornar un proxy basado en el país del usuario
+        return {
+            server: 'gate.smartproxy.com:7000',
+            username: 'user-spsfgpi2bg-country-us',
+            password: '62wUa~uWQHmzrwxi99'
+        };
+    }
+}
+
+export default BrowserPool;

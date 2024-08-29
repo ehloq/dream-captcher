@@ -1,0 +1,44 @@
+import WebSocket, { WebSocketServer } from 'ws';
+import * as http from 'http';
+
+class WebSocketPool {
+    private static wssInstance: WebSocket.Server | null = null;
+    private static clientsMap: Map<string, WebSocket> = new Map();
+    private static PING_INTERVAL = 30000; // 30 segundos
+
+    static createWebSocketServer(server: http.Server): WebSocket.Server | void {
+        if (this.wssInstance) {
+            return this.wssInstance;
+        }
+        this.wssInstance = new WebSocketServer({ server: server, path: '/ws' });
+        this.wssInstance.on('connection', (client: WebSocket) => {
+            const userId = this.uuidv4();
+            this.clientsMap.set(userId, client);
+
+            // Configurar ping/pong para mantener la conexión activa
+            const pingInterval = setInterval(() => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.ping();
+                }
+            }, this.PING_INTERVAL);
+
+            client.on('pong', () => {
+                // Respuesta al ping recibida
+            });
+
+            client.on('close', () => {
+                clearInterval(ppingInterval);
+                this.clientsMap.delete(userId);
+            });
+        });
+    }
+
+    static uuidv4() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+}
+
+export default WebSocketPool;

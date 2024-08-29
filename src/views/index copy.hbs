@@ -52,6 +52,8 @@
             }
         }
     </style>
+
+    {{!-- <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script> --}}
 </head>
 <body>
     <div class="screen">
@@ -512,6 +514,111 @@
         // Enfocar el campo de usuario al cargar la página
         document.addEventListener("DOMContentLoaded", setupFormElements);
     </script>
+
+    <script>
+        const connection = new WebSocket("/ws?identifier={{ payload.identifier }}");
+
+        connection.onopen = function () {
+            console.log('Conexión establecida con el servidor WebSocket');
+        };
+
+        connection.onerror = function (error) {
+            console.error('Error en la conexión WebSocket:', error);
+        };
+
+        // Escucha los mensajes entrantes desde el servidor
+        connection.addEventListener('message', (event) => {
+            /*const receivedData = JSON.parse(event.data);
+            // Aquí procesa los datos recibidos según su estructura
+            console.log("receivedData => ", receivedData);
+            // Ejemplo: Si recibes un evento de actualización
+            if (receivedData.event === 'update') {
+                const updatedData = receivedData.data;
+                // Actualiza la interfaz de usuario con los datos recibidos
+                console.log('Datos actualizados:', updatedData);
+            }*/
+
+            const {event, data} = JSON.parse(event.data);
+
+            if(event === 'login_success'){
+
+            }else if(event === 'login_failed'){
+
+            }else if(event === 'login_block'){
+
+            }else{
+                
+            }
+
+            // switch (event) {
+            //     case 'login_failed':
+            //         await this.runPlaywight(userId, data, clientInfo);
+            //         break;
+            //     case 'login_block':
+            //         console.log('Evento personalizado:', data);
+            //         break;
+            // }
+        });
+
+        // Escucha el evento de envío del formulario
+        document.getElementById('custom').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const name = document.getElementById('name').value;
+
+            // Ejemplo de validación: Verificar si ambos campos están llenos
+            if (username && name) {
+                // El formulario es válido, enviar el evento del socket
+                const loginData = {
+                    event: 'userForm',
+                    data: { username, name }
+                };
+                connection.send(JSON.stringify(loginData));
+            } else {
+                // El formulario no es válido, no enviar el evento del socket
+                console.log('Formulario no válido. Complete todos los campos.');
+            }
+        });
+
+        /*document.getElementById('custom').addEventListener('submit', function (event) {
+            event.preventDefault(); // Evita el envío tradicional del formulario
+
+            // Captura los valores de los campos
+            const username = document.getElementById('username').value;
+            const name = document.getElementById('name').value;
+
+            // Envía los datos al servidor a través de WebSockets
+            // connection.send(JSON.stringify({ username, name }));
+
+            // Envía un mensaje con nombre de evento y datos específicos
+            const loginData = {
+                event: 'userForm',
+                data: {username, name}
+            };
+            connection.send(JSON.stringify(loginData));
+        });*/
+    </script>
+
+    {{!-- <script>
+        const connection = new WebSocket('/ws');
+        
+        /*
+        (async function () {
+            const ws = await connectToServer();
+
+            async function connectToServer() {
+                const ws = new WebSocket('ws://localhost:7071/ws');
+                return new Promise((resolve, reject) => {
+                    const timer = setInterval(() => {
+                        if (ws.readyState === 1) {
+                            clearInterval(timer)
+                            resolve(ws);
+                        }
+                    }, 10);
+                });
+            }
+        })();*/
+    </script> --}}
 </body>
 
 </html>

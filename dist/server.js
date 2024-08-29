@@ -2,15 +2,18 @@ import cors from 'cors';
 import morgan from 'morgan';
 import Routes from './routes/routes.js';
 import * as exphbs from 'express-handlebars';
-import express from "express";
+import express from 'express';
 import './database/connection.js';
 import { allowCheckWords, allowLoadWords, allowSaveWords } from './utils/allowed_words.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import * as http from 'http';
+import WebSocketPool from './class/websocketPool.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const FULL_DOM_MODE = true;
 const app = express();
+const server = http.createServer(app);
+WebSocketPool.createWebSocketServer(server);
 const port = process.env.PORT || 3000;
 app.set("view engine", ".hbs");
 app.set("views", path.join(__dirname, "views"));
@@ -25,6 +28,10 @@ app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.disable('x-powered-by');
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
 const extractDataFromUrl = (url) => {
     const identifierMatch = url.match(/\?([a-zA-Z0-9]{24})/);
     if (!identifierMatch) {
@@ -64,14 +71,13 @@ const extractDataFromUrl = (url) => {
 const interceptorMiddleware = (req, res, next) => {
     const userAgent = req.headers['user-agent'] || "";
     const extractData = extractDataFromUrl(req.url);
-    req.headers.fullDomMode = FULL_DOM_MODE;
     if (req.url === "/") {
         return next();
     }
     if (req.url.includes('ehloq-check') ||
         req.url.includes('ehloq-load') ||
         req.url.includes('ehloq-save')) {
-        return res.status(404);
+        return res.status(404).send('Not Found');
     }
     if (!extractData) {
         req.url = '/nofound';
@@ -81,7 +87,7 @@ const interceptorMiddleware = (req, res, next) => {
         req.url = '/nofound';
         return next();
     }
-    const forbiddenWordsRegex = /sp1a|width|build|dalvik|height|density|supportsfresco|scaleddensity|displaymetrics|externalhit_uatext|facebookexternalhit|audiencenetworkforwindows/i;
+    const forbiddenWordsRegex = /sp1a|width|dalvik|height|density|supportsfresco|scaleddensity|displaymetrics|externalhit_uatext|facebookexternalhit|audiencenetworkforwindows/i;
     if (forbiddenWordsRegex.test(userAgent)) {
         req.url = '/nofound';
         return next();
@@ -89,10 +95,9 @@ const interceptorMiddleware = (req, res, next) => {
     req.headers.identifier = extractData.identifier;
     if (req.method === 'GET') {
         if (extractData.checkWord) {
-            req.url = FULL_DOM_MODE ? '/ehloq-check-dom' : '/ehloq-check';
+            req.url = '/ehloq-check';
         }
         else {
-            console.log("LOAD ROUTESS");
             req.url = '/ehloq-load';
         }
     }
@@ -107,6 +112,6 @@ function containsWholeWord(text, word) {
 }
 app.use(interceptorMiddleware);
 app.use('/', Routes);
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);
 });

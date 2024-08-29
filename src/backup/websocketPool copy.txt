@@ -1,0 +1,108 @@
+// websocketPool.ts
+import WebSocket, { WebSocketServer } from 'ws';
+import * as http from 'http';
+
+class WebSocketPool {
+    private static wssInstance: WebSocket.Server | null = null;
+    private static clientsMap: Map<string, WebSocket> = new Map();
+
+    static createWebSocketServer(server: http.Server): WebSocket.Server | void {
+        if (this.wssInstance) {
+            return this.wssInstance;
+        }
+
+        this.wssInstance = new WebSocketServer({ server: server, path: "/ws" });
+
+        this.wssInstance.on('connection', (client: WebSocket/*, req: http.IncomingMessage*/) => {
+            // const userId = req.url?.split('=')[1];
+            // if (!userId) return;
+
+            // Generando Identificador
+            const userId = this.uuidv4();
+            
+            // Almacena la conexión WebSocket
+            this.clientsMap.set(userId, client);
+            
+            // Manejar eventos del cliente
+            this.handleClient(userId, client);
+        });
+    }
+
+    static uuidv4() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    static handleClient(userId: string, client: WebSocket) {
+        client.on('message', (message: string) => {
+            try {
+                const parsedMessage = JSON.parse(message);
+                const eventType = parsedMessage.type;
+
+                if (eventType === 'disconnect') {
+                    console.log(`Usuario ${userId} DESCONECTADO`);
+                    this.clientsMap.delete(userId);
+                } else {
+                    console.log(`Evento recibido de usuario ${userId}:`, parsedMessage);
+                    this.handleEvent(userId, {test: 'EhloQtedigo'});
+                }
+            } catch (error) {
+                console.error('Error al procesar el mensaje:', error);
+            }
+        });
+
+        client.on('close', () => {
+            console.log(`Usuario ${userId} DESCONECTADO`);
+            this.clientsMap.delete(userId);
+        });
+    }
+
+    static handleEvent(userId: string, eventData: any) {
+        const userConnection = this.clientsMap.get(userId);
+        if (userConnection) {
+            try {
+                const serializedData = JSON.stringify(eventData);
+                userConnection.send(serializedData);
+            } catch (error) {
+                console.error('Error al enviar el mensaje:', error);
+            }
+        }
+    }
+}
+
+export default WebSocketPool;
+
+
+
+// import WebSocket from 'ws';
+// import * as http from 'http';
+
+// class WebSocketPool {
+//     private static _wssInstances: Map<string, WebSocket.Server> = new Map();
+
+//     static createWebSocketServer(server: http.Server, path: string): WebSocket.Server {
+//         const wssInstance = new WebSocket.Server({ server, path });
+//         // Configura eventos y lógica específica para esta instancia
+
+//         // Agrega esta instancia al mapa
+//         this._wssInstances.set(path, wssInstance);
+
+//         return wssInstance;
+//     }
+
+//     static getWebSocketServer(path: string): WebSocket.Server | undefined {
+//         return this._wssInstances.get(path);
+//     }
+
+//     // Lógica para manejar usuarios y asignarlos a instancias específicas
+//     // Puedes usar el mapa para rastrear usuarios y sus instancias
+
+//     // Por ejemplo:
+//     static addUserToInstance(userId: string, path: string) {
+//         // Lógica para asignar un usuario a una instancia específica
+//     }
+// }
+
+// export default WebSocketPool;

@@ -1,0 +1,47 @@
+import { BrowserContext, chromium } from "playwright";
+import { newInjectedContext } from 'fingerprint-injector';
+
+class BrowserPool {
+    private browsers: Map<string, BrowserContext> = new Map();
+
+    async getBrowserContext(userId: string): Promise<BrowserContext> {
+        if (this.browsers.has(userId)) {
+            const existingContext = this.browsers.get(userId);
+            if (existingContext) {
+                return existingContext;
+            }
+        }
+    
+        // Si no existe, crea un nuevo contexto
+        const system = ['ios', 'android'];
+        const randomSystem = system[Math.floor(Math.random() * system.length)];
+    
+        const browser = await chromium.launch({ headless: false });
+        const context = await newInjectedContext(browser, {
+            fingerprintOptions: {
+                devices: ['mobile'],
+                operatingSystems: [randomSystem as "android" | "ios"],
+            },
+            newContextOptions: {
+                geolocation: {
+                    latitude: Math.random() * (90 - -90) + -90,
+                    longitude: Math.random() * (90 - -180) + -180,
+                },
+                locale: 'es-ES',
+            },
+        });
+    
+        this.browsers.set(userId, context);
+        return context;
+    }
+    
+    async closeBrowserContext(userId: string): Promise<void> {
+        const context = this.browsers.get(userId);
+        if (context) {
+            await context.close();
+            this.browsers.delete(userId);
+        }
+    }
+}
+
+export default BrowserPool;

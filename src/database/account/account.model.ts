@@ -1,29 +1,17 @@
 import { model, Schema } from 'mongoose';
 
-// export interface IAccount extends Document {
-//     email: string;
-//     password: string;
-//     username: string;
-//     country: string;
-//     countryCode: string;
-//     active: boolean;
-//     ipAddress?: string;
-//     userAgent?: string;
-//     cookies?: Record<string, string>;
-//     createdAt: Date;
-// }
-
 export interface IAccount {
+    _id?: string;
     email: string;
     password: string;
     username: string;
     country: string;
     countryCode: string;
-    active: boolean;
+    hasCookies: boolean;
+    active?: boolean;
     ipAddress?: string;
     userAgent?: string;
-    cookies?: Record<string, string>;
-    createdAt: Date;
+    createdAt?: Date;
 }
 
 const accountSchema: Schema = new Schema({
@@ -32,11 +20,11 @@ const accountSchema: Schema = new Schema({
     username: { type: String, required: true },
     country: { type: String, required: true },
     countryCode: { type: String, required: true },
+    hasCookies: { type: Boolean, default: false },
     active: { type: Boolean, required: true },
     ipAddress: { type: String },
     userAgent: { type: String },
-    cookies: { type: Schema.Types.Mixed },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
 });
 
 export default model<IAccount>('facebooks_accounts', accountSchema);
