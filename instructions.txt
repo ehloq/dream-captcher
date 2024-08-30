@@ -1,143 +1,36 @@
-Claro, aquí tienes una guía detallada paso a paso sobre cómo configurar y ejecutar tu entorno con Docker Compose, incluyendo una explicación de cada paso.
+--------------------------------------------------------------
+1. Instalar Nginx
+  sudo apt update
+  sudo apt install nginx
 
-Paso 1: Crear el Archivo docker-compose.yml
-Primero, crea un archivo llamado docker-compose.yml en el directorio de tu proyecto. Este archivo define los servicios que se ejecutarán en los contenedores.
+2. Verificar si nginx esta activo
+  sudo systemctl status nginx
 
-Contenido del Archivo docker-compose.yml
+3. Verificar que aparezca la bienvenida de nginx utilizando la ip del servidor
+  y si no aparece abrir el puerto 80
 
-version: '3' # Especifica la versión del formato de Docker Compose que se está utilizando.
+4. Configurar Nginx:
+  sudo nano /etc/nginx/sites-available/default
 
-services: # Define los servicios que se ejecutarán en los contenedores.
-  nginx: # Nombre del servicio.
-    image: nginx:latest # Imagen de Docker que se utilizará para el servicio Nginx.
-    ports: # Mapea los puertos del contenedor a los puertos del host.
-      - "80:80" # Mapea el puerto 80 del host al puerto 80 del contenedor.
-      - "443:443" # Mapea el puerto 443 del host al puerto 443 del contenedor.
-    volumes: # Monta volúmenes para persistir datos y compartir archivos entre el host y el contenedor.
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf # Monta el archivo de configuración de Nginx desde el host al contenedor.
-      - /etc/letsencrypt:/etc/letsencrypt # Monta el directorio de certificados de Let's Encrypt.
-      - /var/lib/letsencrypt:/var/lib/letsencrypt # Monta el directorio de datos de Let's Encrypt.
-    depends_on: # Define dependencias entre servicios.
-      - dream-captcher # Indica que el servicio Nginx depende del servicio dream-captcher.
-    networks: # Define las redes a las que pertenece el servicio.
-      - webnet # Nombre de la red.
-
-  dream-captcher: # Nombre del servicio para la aplicación.
-    build: . # Construye la imagen de Docker a partir del Dockerfile en el directorio actual.
-    ports: # Mapea los puertos del contenedor a los puertos del host.
-      - "3000:3000" # Mapea el puerto 3000 del host al puerto 3000 del contenedor.
-    environment: # Define variables de entorno para el contenedor.
-      - NODE_ENV=production # Establece la variable de entorno NODE_ENV en producción.
-    networks: # Define las redes a las que pertenece el servicio.
-      - webnet # Nombre de la red.
-
-  certbot: # Nombre del servicio para Certbot.
-    image: certbot/certbot # Imagen de Docker que se utilizará para el servicio Certbot.
-    volumes: # Monta volúmenes para persistir datos y compartir archivos entre el host y el contenedor.
-      - /etc/letsencrypt:/etc/letsencrypt # Monta el directorio de certificados de Let's Encrypt.
-      - /var/lib/letsencrypt:/var/lib/letsencrypt # Monta el directorio de datos de Let's Encrypt.
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf # Monta el archivo de configuración de Nginx desde el host al contenedor.
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'" # Comando que se ejecuta cuando se inicia el contenedor. Este comando renueva los certificados cada 12 horas.
-    networks: # Define las redes a las que pertenece el servicio.
-      - webnet # Nombre de la red.
-
-networks: # Define las redes utilizadas por los servicios.
-  webnet: # Nombre de la red.
-
-
-Paso 2: Crear el Archivo de Configuración de Nginx
-  Crea un archivo llamado nginx.conf en el mismo directorio que tu archivo docker-compose.yml. Este archivo define la configuración de Nginx.
-
-Contenido del Archivo nginx.conf
-
-server {
-    listen 80;
-    server_name example.com www.example.com;
+  server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
 
     location / {
-        proxy_pass http://dream-captcher:3000;
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
     }
+  }
 
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-    }
-}
+5. Verificar si nginx se ha modificado correctamente
+  sudo nginx -t
 
-server {
-    listen 443 ssl;
-    server_name example.com www.example.com;
+6. Reiniciar servicio nginx
+  sudo systemctl restart nginx
 
-    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
-
-    location / {
-        proxy_pass http://dream-captcher:3000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-
-Paso 3: Obtener los Certificados SSL Inicialmente
-
-Ejecuta el siguiente comando para obtener los certificados SSL inicialmente. Asegúrate de reemplazar example.com y www.example.com con tus dominios reales.
-
-docker-compose run --rm certbot certonly --webroot -w /var/www/certbot -d example.com -d www.example.com
-
-Paso 4: Levantar los Contenedores
-
-Una vez que los certificados se hayan generado correctamente, puedes levantar los contenedores con Docker Compose.
-
-docker-compose up -d
-
----------------------------------------------
-
-Explicación de Cada Paso
-
-1. Crear el Archivo docker-compose.yml:
-
-Define los servicios nginx, app y certbot.
-Especifica las imágenes de Docker y las configuraciones de red y volúmenes.
-Crear el Archivo de Configuración de Nginx:
-
-2. Configura Nginx para servir tu aplicación y manejar las solicitudes de renovación de certificados.
-Obtener los Certificados SSL Inicialmente:
-
-3. Ejecuta Certbot para obtener los certificados SSL para tus dominios.
-Levantar los Contenedores:
-
-Usa Docker Compose para levantar los servicios definidos en el archivo docker-compose.yml.
-
----------------------------------------------
-
-Resumen
-Configurar Docker Compose: Define los servicios y configuraciones en docker-compose.yml.
-Configurar Nginx: Define la configuración de Nginx en nginx.conf.
-Obtener Certificados SSL: Ejecuta Certbot para obtener los certificados SSL inicialmente.
-Levantar Contenedores: Usa Docker Compose para levantar los servicios.
-
-
-
--------------- CONFIGURAR DNS -------------- 
-
-Para el Dominio Raíz (example.com)
-  Host: (Deja en blanco)
-  Answer: 146.235.244.128
-  TTL: 600
-  Priority: (Deja en blanco)
-  Notes: (Opcional)
-
-Para un Subdominio (www.example.com)
-  Host: www
-  Answer: 146.235.244.128
-  TTL: 600
-  Priority: (Deja en blanco)
-  Notes: (Opcional)
-
- 
-
+--------------------------------------------------------------

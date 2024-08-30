@@ -1,0 +1,55 @@
+--------------------------------------------------------------
+1. Instalar Nginx
+  sudo apt update
+  sudo apt install nginx
+
+2. Verificar si nginx esta activo
+  sudo systemctl status nginx
+
+3. Verificar que aparezca la bienvenida de nginx utilizando la ip del servidor
+  y si no aparece abrir el puerto 80
+
+4. Configurar Nginx:
+  sudo nano /etc/nginx/sites-available/application-video-stats.click
+
+  server {
+      listen 80 default_server;
+      listen [::]:80 default_server;
+      server_name _;
+
+      set_real_ip_from 0.0.0.0/0; # Permitir todas las IPs
+      real_ip_header X-Forwarded-For;
+      real_ip_recursive on;
+
+      location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_cache_bypass $http_upgrade;
+      }
+  }
+
+5. Crea un enlace simbólico en el directorio sites-enabled para activar el sitio:
+  sudo ln -s /etc/nginx/sites-available/application-video-stats.click /etc/nginx/sites-enabled/
+
+6. Verificar si nginx se ha modificado correctamente
+  sudo nginx -t
+
+7. Reiniciar servicio nginx
+  sudo systemctl restart nginx
+
+--------------------------------------------------------------
+1. INSTALAR CERBOT
+  sudo snap install --classic certbot
+
+2. Preparar comando certbot
+  sudo ln -s /snap/bin/certbot /usr/bin/certbot
+
+3. Instalando Certificados
+  sudo certbot --nginx -d application-video-stats.click -d www.application-video-stats.click
+
+4. Abrir el puerto 443

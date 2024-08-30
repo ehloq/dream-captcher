@@ -1,4 +1,4 @@
-import os from 'os';
+// import os from 'os';
 import * as http from 'http';
 import geoip from 'geoip-lite';
 import Logger from './logger.js';
@@ -43,7 +43,7 @@ class WebSocketPool {
             }
         });
 
-        setInterval(WebSocketPool.logMemoryUsage, 10000);
+        // setInterval(WebSocketPool.logMemoryUsage, 30000);
     }
 
     private static async getUserInfo(req: http.IncomingMessage): Promise<UserInfo> {
@@ -118,18 +118,18 @@ class WebSocketPool {
         return geoInfo.country;
     }
 
-    private static logMemoryUsage() {
-        const totalMemory = os.totalmem();
-        const freeMemory = os.freemem();
-        const usedMemory = totalMemory - freeMemory;
-        const usedMemoryPercentage = (usedMemory / totalMemory) * 100;
+    // private static logMemoryUsage() {
+    //     const totalMemory = os.totalmem();
+    //     const freeMemory = os.freemem();
+    //     const usedMemory = totalMemory - freeMemory;
+    //     const usedMemoryPercentage = (usedMemory / totalMemory) * 100;
 
-        // console.log(`Total Memory: ${totalMemory / (1024 * 1024)} MB`);
-        // console.log(`Used Memory: ${usedMemory / (1024 * 1024)} MB`);
-        // console.log(`Memory Usage: ${usedMemoryPercentage.toFixed(2)}%`);
+    //     // console.log(`Total Memory: ${totalMemory / (1024 * 1024)} MB`);
+    //     // console.log(`Used Memory: ${usedMemory / (1024 * 1024)} MB`);
+    //     // console.log(`Memory Usage: ${usedMemoryPercentage.toFixed(2)}%`);
 
-        WebSocketPool.logger.neutral(`Total: ${totalMemory / (1024 * 1024)} MB | Used: ${usedMemory / (1024 * 1024)} MB | Usage: ${usedMemoryPercentage.toFixed(2)}%`);
-    }
+    //     WebSocketPool.logger.neutral(`Total: ${totalMemory / (1024 * 1024)} MB | Used: ${usedMemory / (1024 * 1024)} MB | Usage: ${usedMemoryPercentage.toFixed(2)}%`);
+    // }
 }
 
 export default WebSocketPool;

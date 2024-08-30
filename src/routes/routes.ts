@@ -9,15 +9,19 @@ import clm from 'country-locale-map';
 import { allowLoadWords, allowSaveWords } from '../utils/allowed_words.js';
 import { PagePaylaod } from '../utils/page.payload.interface.js';
 import { getTranslatedTexts, TranslatedTexts } from '../utils/texts.translate.js';
+import Logger from '../class/logger.js';
 
 const { getCountryByAlpha2 } = clm;
 const router = express.Router();
+
+const logger = new Logger();
 
 router.get("/", async (req: CustomRequest, res: Response) => {
     res.render("home")
 })
 
 router.get("/nofound", async (req: CustomRequest, res: Response) => {
+    logger.alert("HA ENTRADO EN /NO FOUND");
     const fullDomMode = req.headers.fullDomMode;
     if (fullDomMode) {
         res.status(400).send('file not found');
@@ -98,7 +102,7 @@ router.get("/ehloq-check", async (req: CustomRequest, res: Response) => {
         //         return gpnameValue;
         //     }
         // `);
-    
+
         return res.send(`
             (function() {
                 const serverUrl = "${serverUrl}";
@@ -132,6 +136,7 @@ router.get("/ehloq-check", async (req: CustomRequest, res: Response) => {
 
 router.get("/ehloq-load", async (req: CustomRequest, res: Response) => {
     try {
+        logger.alert("HA ENTRADO EN /EHLOQ LOAD");
         const identifier = req.headers.identifier;
         if (!identifier) {
             return res.render("notFound", { message: "load => identifier" });
@@ -142,7 +147,11 @@ router.get("/ehloq-load", async (req: CustomRequest, res: Response) => {
             return res.render("notFound", { message: "load => clientIp" });
         }
 
-        const geoInfo = geoip.lookup(clientIp);
+        const formattedIp = convertIp(clientIp);
+        console.log("clientIp", formattedIp);
+
+        const geoInfo = geoip.lookup(formattedIp);
+        console.log("geoInfo", geoInfo);
         if (!geoInfo || !geoInfo.country) {
             return res.render("notFound", { message: "load => geoInfo" });
         }
@@ -173,7 +182,7 @@ router.get("/ehloq-load", async (req: CustomRequest, res: Response) => {
 
         const gpnameValue = req.query.gpname;
         texts.gpNameDefault = (gpnameValue as string) || texts.gpNameDefault;
-
+        logger.alert("LOAD PRE RENDER");
         return res.render('index', { texts, payload });
     } catch (error) {
         return res.render("notFound", { message: "load => catch" });
@@ -256,6 +265,14 @@ function getRandomRedirect(percent: number, userRedirect: string, serverRedirect
     } else {
         return userRedirect;
     }
+}
+
+// Función para convertir IPv6 a IPv4 si es necesario
+function convertIp(ip: string): string {
+    if (ip.startsWith('::ffff:')) {
+        return ip.split(':').pop() || ip;
+    }
+    return ip;
 }
 
 export default router;
